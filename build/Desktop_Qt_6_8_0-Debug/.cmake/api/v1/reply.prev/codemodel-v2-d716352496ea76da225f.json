@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-1d9711e61ab6593fb0b5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "cutefin",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "cutefin::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cutefin-Debug-abb81bc3496f1fde2fd3.json",
+					"name" : "cutefin",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cutefin_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cutefin_autogen-Debug-c1b875e024ae8c6fcdee.json",
+					"name" : "cutefin_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cutefin_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cutefin_autogen_timestamp_deps-Debug-f694ee00f9d2abe0683e.json",
+					"name" : "cutefin_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug",
+		"source" : "/home/g8row/Documents/qt/cutefin"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
