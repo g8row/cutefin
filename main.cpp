@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QVBoxLayout>
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +19,14 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    ServerSelect w;
-    w.show();
+
+    QWidget *mainWidget = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout();
+
+    ServerSelect *serverSelect = new ServerSelect();
+    layout->addWidget(serverSelect);
+    mainWidget->setLayout(layout);
+    mainWidget->setMinimumSize(300, 300);
+    mainWidget->show();
     return a.exec();
 }

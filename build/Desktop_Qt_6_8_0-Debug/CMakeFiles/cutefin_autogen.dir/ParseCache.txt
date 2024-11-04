@@ -152,12 +152,17 @@
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qkeysequence.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpaintdevice.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpalette.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpen.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixelformat.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixmap.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpolygon.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qregion.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgb.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgba64.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextcursor.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextdocument.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextformat.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextoption.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtgui-config.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiexports.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiglobal.h
@@ -184,7 +189,14 @@
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetwork-config.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QLineEdit
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMessageBox
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialog.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialogbuttonbox.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qframe.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qlineedit.h
+ mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmessagebox.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h
  mdp:/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h

@@ -158,12 +158,17 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qkeysequence.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpaintdevice.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpalette.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpen.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixelformat.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixmap.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpolygon.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qregion.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgb.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgba64.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextcursor.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextdocument.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextformat.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextoption.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtgui-config.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiexports.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiglobal.h \
@@ -190,7 +195,14 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QLineEdit \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMessageBox \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialog.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qframe.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qlineedit.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmessagebox.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h \
