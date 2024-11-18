@@ -4,11 +4,15 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/3.29.3/CMakeCXXCompiler.cmake \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/3.29.3/CMakeSystem.cmake \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
+	/home/g8row/Documents/qt/cutefin/jellyfinapi.cpp \
+	/home/g8row/Documents/qt/cutefin/jellyfinapi.h \
 	/home/g8row/Documents/qt/cutefin/loginscreen.cpp \
 	/home/g8row/Documents/qt/cutefin/loginscreen.h \
 	/home/g8row/Documents/qt/cutefin/main.cpp \
 	/home/g8row/Documents/qt/cutefin/serverselect.cpp \
 	/home/g8row/Documents/qt/cutefin/serverselect.h \
+	/home/g8row/Documents/qt/cutefin/setupwindow.cpp \
+	/home/g8row/Documents/qt/cutefin/setupwindow.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QIODevice \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \

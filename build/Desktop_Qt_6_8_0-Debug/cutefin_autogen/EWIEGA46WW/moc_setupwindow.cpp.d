@@ -1,7 +1,10 @@
-/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_loginscreen.cpp: /home/g8row/Documents/qt/cutefin/loginscreen.h \
+/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_setupwindow.cpp: /home/g8row/Documents/qt/cutefin/setupwindow.h \
   /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
   /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
+  /home/g8row/Documents/qt/cutefin/loginscreen.h \
+  /home/g8row/Documents/qt/cutefin/serverselect.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QIODevice \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QMetaType \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QObject \
@@ -149,24 +152,32 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qkeysequence.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpaintdevice.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpalette.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpen.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixelformat.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixmap.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpolygon.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qregion.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgb.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgba64.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextcursor.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextdocument.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextformat.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextoption.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtgui-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiexports.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiglobal.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtransform.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qwindowdefs.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkReply \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkRequest \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslConfiguration \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qabstractsocket.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qhostaddress.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qhttpheaders.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkreply.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qssl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslcertificate.h \
@@ -178,7 +189,14 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QLineEdit \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMessageBox \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialog.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qframe.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qlineedit.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmessagebox.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h \

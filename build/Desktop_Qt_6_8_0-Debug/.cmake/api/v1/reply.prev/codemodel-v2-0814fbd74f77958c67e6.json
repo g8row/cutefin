@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Debug-1d9711e61ab6593fb0b5.json",
+					"jsonFile" : "directory-.-Debug-c4dd7e093dbf8ffa002c.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.16"
@@ -44,7 +44,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "cutefin::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-cutefin-Debug-abb81bc3496f1fde2fd3.json",
+					"jsonFile" : "target-cutefin-Debug-e3c8f09922e19ffdbf3b.json",
 					"name" : "cutefin",
 					"projectIndex" : 0
 				},

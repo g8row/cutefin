@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QNetworkAccessManager>
 #include <QMessageBox>
+#include "jellyfinapi.h"
 
 class ServerSelect : public QWidget
 {
@@ -13,14 +14,13 @@ class ServerSelect : public QWidget
 private:
     QNetworkReply *reply;
     QLineEdit *serverField;
-    QNetworkAccessManager *manager;
     QMessageBox *box;
+    JellyfinApi *jellyfinApi;
 public:
-    explicit ServerSelect(QWidget *parent = nullptr);
+    explicit ServerSelect(QWidget *parent = nullptr, JellyfinApi *_jellyfinApi = nullptr);
 public slots:
-    void parseInfo();
-    void pingServer();
 signals:
+    void serverSelected(const QString url);
 };
 
 #endif // SERVERSELECT_H

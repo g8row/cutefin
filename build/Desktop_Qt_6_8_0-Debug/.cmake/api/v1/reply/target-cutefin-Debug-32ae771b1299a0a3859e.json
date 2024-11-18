@@ -71,13 +71,13 @@
 			{
 				"command" : 4,
 				"file" : 1,
-				"line" : 71,
+				"line" : 73,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 54,
+				"line" : 56,
 				"parent" : 0
 			},
 			{
@@ -294,18 +294,20 @@
 				0,
 				1,
 				4,
-				6
+				6,
+				8,
+				10
 			]
 		}
 	],
 	"dependencies" : 
 	[
 		{
-			"id" : "cutefin_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
-		},
-		{
 			"backtrace" : 0,
 			"id" : "cutefin_autogen::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "cutefin_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "cutefin::@6890427a1f51a3e7e1df",
@@ -392,7 +394,9 @@
 				0,
 				1,
 				4,
-				6
+				6,
+				8,
+				10
 			]
 		},
 		{
@@ -400,7 +404,7 @@
 			"sourceIndexes" : 
 			[
 				2,
-				7
+				11
 			]
 		},
 		{
@@ -408,14 +412,16 @@
 			"sourceIndexes" : 
 			[
 				3,
-				5
+				5,
+				7,
+				9
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				8
+				12
 			]
 		}
 	],
@@ -459,6 +465,28 @@
 			"backtrace" : 4,
 			"compileGroupIndex" : 0,
 			"path" : "serverselect.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 4,
+			"path" : "jellyfinapi.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "jellyfinapi.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 4,
+			"path" : "setupwindow.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "setupwindow.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

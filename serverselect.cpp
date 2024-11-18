@@ -5,16 +5,15 @@
 #include <QLineEdit>
 #include <QNetworkAccessManager>
 #include <QDebug>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QMessageBox>
+#include "jellyfinapi.h"
 
 
-ServerSelect::ServerSelect(QWidget *parent)
+ServerSelect::ServerSelect(QWidget *parent, JellyfinApi *_jellyfinApi)
     : QWidget{parent}
 {
-    manager = new QNetworkAccessManager(this);
+
+    jellyfinApi = _jellyfinApi;
 
     this->setMaximumSize(300,100);
     QVBoxLayout *layout = new QVBoxLayout();
@@ -31,24 +30,17 @@ ServerSelect::ServerSelect(QWidget *parent)
     layout->addLayout(formLayout);
     layout->addWidget(addServerButton);
 
-    connect(addServerButton, &QPushButton::clicked, this, &ServerSelect::pingServer);
+    connect(jellyfinApi, &JellyfinApi::pingServerResponse, this, [this](bool status, const QString &message = ""){
+        if (status) {
+            emit serverSelected(serverField->text());
+        } else {
+            box->show();
+        }
+    });
+
+    connect(addServerButton, &QPushButton::clicked, this, [this](){
+        jellyfinApi->pingServer(serverField->text() + "/System/Info/Public");
+    });
 
     this->setLayout(layout);
-}
-
-void ServerSelect::pingServer(){
-    connect(manager, &QNetworkAccessManager::finished, this, &ServerSelect::parseInfo);
-    reply=manager->get(QNetworkRequest(QUrl(serverField->text())));
-}
-
-void ServerSelect::parseInfo() {
-    if (reply->error() == QNetworkReply::NoError) {
-        qInfo("success");
-        QByteArray data = reply->readAll();
-        QJsonDocument jsonDocument = QJsonDocument::fromJson(data);
-        qInfo("%s",jsonDocument["Version"].toString().toStdString().c_str());
-        close();
-    } else {
-        box->show();
-    }
 }

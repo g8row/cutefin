@@ -417,6 +417,12 @@
 	"HEADERS" : 
 	[
 		[
+			"/home/g8row/Documents/qt/cutefin/jellyfinapi.h",
+			"MU",
+			"EWIEGA46WW/moc_jellyfinapi.cpp",
+			null
+		],
+		[
 			"/home/g8row/Documents/qt/cutefin/loginscreen.h",
 			"MU",
 			"EWIEGA46WW/moc_loginscreen.cpp",
@@ -426,6 +432,12 @@
 			"/home/g8row/Documents/qt/cutefin/serverselect.h",
 			"MU",
 			"EWIEGA46WW/moc_serverselect.cpp",
+			null
+		],
+		[
+			"/home/g8row/Documents/qt/cutefin/setupwindow.h",
+			"MU",
+			"EWIEGA46WW/moc_setupwindow.cpp",
 			null
 		]
 	],
@@ -489,9 +501,11 @@
 	"SETTINGS_FILE" : "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/cutefin_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[ "/home/g8row/Documents/qt/cutefin/jellyfinapi.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/loginscreen.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/main.cpp", "MU", null ],
-		[ "/home/g8row/Documents/qt/cutefin/serverselect.cpp", "MU", null ]
+		[ "/home/g8row/Documents/qt/cutefin/serverselect.cpp", "MU", null ],
+		[ "/home/g8row/Documents/qt/cutefin/setupwindow.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],

@@ -1,5 +1,6 @@
 /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_serverselect.cpp: /home/g8row/Documents/qt/cutefin/serverselect.h \
   /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
+  /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QIODevice \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \

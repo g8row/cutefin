@@ -1,10 +1,10 @@
-#include "loginscreen.h"
-#include "serverselect.h"
+#include "setupwindow.h"
 
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <QVBoxLayout>
+#include <qwidget.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -20,13 +20,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    QWidget *mainWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-
-    ServerSelect *serverSelect = new ServerSelect();
-    layout->addWidget(serverSelect);
-    mainWidget->setLayout(layout);
-    mainWidget->setMinimumSize(300, 300);
-    mainWidget->show();
+    SetupWindow *setupWindow = new SetupWindow();
     return a.exec();
 }

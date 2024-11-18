@@ -1,6 +1,5 @@
-/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_loginscreen.cpp: /home/g8row/Documents/qt/cutefin/loginscreen.h \
+/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_jellyfinapi.cpp: /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
   /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
-  /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QMetaType \
@@ -46,7 +45,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatastream.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatetime.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdebug.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qendian.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qexceptionhandling.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qflags.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qfloat16.h \
@@ -63,13 +61,11 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterable.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterator.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlatin1stringview.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qline.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlist.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlocale.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlogging.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmalloc.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmap.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmargins.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmath.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmetacontainer.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmetatype.h \
@@ -82,9 +78,7 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qoverload.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qpair.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qpoint.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qprocessordetection.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qrect.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qrefcount.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopedpointer.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopeguard.h \
@@ -93,7 +87,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qshareddata_impl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsharedpointer.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsize.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qspan.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qstring.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qstringalgorithms.h \
@@ -136,30 +129,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qversiontagging.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qxptype_traits.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qyieldcpu.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qaction.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qbitmap.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qbrush.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qcolor.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qcursor.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qfont.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qfontinfo.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qfontmetrics.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qicon.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qimage.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qkeysequence.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpaintdevice.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpalette.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixelformat.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixmap.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpolygon.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qregion.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgb.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgba64.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtgui-config.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiexports.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiglobal.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtransform.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qwindowdefs.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslConfiguration \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
@@ -178,12 +147,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qwidget.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
