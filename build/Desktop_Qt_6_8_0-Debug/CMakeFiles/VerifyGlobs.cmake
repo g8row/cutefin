@@ -42,11 +42,13 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/g8row/Documents/qt/cutefin/*.cpp")
 set(OLD_GLOB
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/3.29.3/CompilerIdCXX/CMakeCXXCompilerId.cpp"
+  "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_homewindow.cpp"
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_jellyfinapi.cpp"
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_loginscreen.cpp"
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_serverselect.cpp"
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_setupwindow.cpp"
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/mocs_compilation.cpp"
+  "/home/g8row/Documents/qt/cutefin/homewindow.cpp"
   "/home/g8row/Documents/qt/cutefin/jellyfinapi.cpp"
   "/home/g8row/Documents/qt/cutefin/loginscreen.cpp"
   "/home/g8row/Documents/qt/cutefin/main.cpp"
@@ -72,6 +74,7 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/g8row/Documents/qt/cutefin/*.h")
 set(OLD_GLOB
   "/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h"
+  "/home/g8row/Documents/qt/cutefin/homewindow.h"
   "/home/g8row/Documents/qt/cutefin/jellyfinapi.h"
   "/home/g8row/Documents/qt/cutefin/loginscreen.h"
   "/home/g8row/Documents/qt/cutefin/mainwindow.h"

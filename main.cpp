@@ -1,10 +1,9 @@
-#include "setupwindow.h"
-
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
 #include <qwidget.h>
 
+#include "homewindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +19,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    SetupWindow *setupWindow = new SetupWindow();
+    HomeWindow *mainWindow = new HomeWindow();
     return a.exec();
 }

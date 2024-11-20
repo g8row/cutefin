@@ -1,24 +1,10 @@
-/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_setupwindow.cpp: /home/g8row/Documents/qt/cutefin/setupwindow.h \
+/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_homewindow.cpp: /home/g8row/Documents/qt/cutefin/homewindow.h \
   /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
-  /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
-  /home/g8row/Documents/qt/cutefin/loginscreen.h \
-  /home/g8row/Documents/qt/cutefin/serverselect.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QIODevice \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QMetaType \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QObject \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QSettings \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QSharedDataPointer \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QString \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QUrl \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QVariant \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q20functional.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q20iterator.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q20memory.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q20type_traits.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q23utility.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/q26numeric.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qalgorithms.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qanystringview.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qarraydata.h \
@@ -33,7 +19,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qbytearrayalgorithms.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qbytearraylist.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qbytearrayview.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcalendar.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qchar.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcompare.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcompare_impl.h \
@@ -45,10 +30,8 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcontainerinfo.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcontainertools_impl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcontiguouscache.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcryptographichash.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdarwinhelpers.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatastream.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatetime.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdebug.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qendian.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qexceptionhandling.h \
@@ -62,14 +45,12 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qglobalstatic.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qhash.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qhashfunctions.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiodevice.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiodevicebase.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterable.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterator.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlatin1stringview.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qline.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlist.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlocale.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlogging.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmalloc.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qmap.h \
@@ -93,7 +74,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopedpointer.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopeguard.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qset.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsettings.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qshareddata.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qshareddata_impl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsharedpointer.h \
@@ -134,7 +114,6 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qtversionchecks.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qtypeinfo.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qtypes.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qurl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qutf8stringview.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qvariant.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qvarlengtharray.h \
@@ -154,52 +133,21 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qkeysequence.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpaintdevice.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpalette.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpen.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixelformat.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpixmap.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qpolygon.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qregion.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgb.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qrgba64.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextcursor.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextdocument.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextformat.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtextoption.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtgui-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiexports.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtguiglobal.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qtransform.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtGui/qwindowdefs.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkReply \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QNetworkRequest \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslConfiguration \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qabstractsocket.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qhostaddress.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qhttpheaders.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkreply.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qssl.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslcertificate.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslconfiguration.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslerror.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslpresharedkeyauthenticator.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qsslsocket.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtcpsocket.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QLineEdit \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMessageBox \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialog.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qframe.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qlineedit.h \
-  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmessagebox.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMainWindow \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmainwindow.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtabwidget.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsglobal.h \

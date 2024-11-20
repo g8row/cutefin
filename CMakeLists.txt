@@ -30,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         serverselect.h serverselect.cpp
         jellyfinapi.h jellyfinapi.cpp
         setupwindow.h setupwindow.cpp
+        homewindow.h homewindow.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET cutefin APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

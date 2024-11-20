@@ -97,6 +97,14 @@ build CMakeFiles/cutefin.dir/setupwindow.cpp.o: CXX_COMPILER__cutefin_unscanned_
   OBJECT_DIR = CMakeFiles/cutefin.dir
   OBJECT_FILE_DIR = CMakeFiles/cutefin.dir
 
+build CMakeFiles/cutefin.dir/homewindow.cpp.o: CXX_COMPILER__cutefin_unscanned_Debug /home/g8row/Documents/qt/cutefin/homewindow.cpp || cmake_object_order_depends_target_cutefin
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB
+  DEP_FILE = CMakeFiles/cutefin.dir/homewindow.cpp.o.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fcolor-diagnostics -fPIC
+  INCLUDES = -I/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/include -isystem /home/g8row/Qt/6.8.0/gcc_64/include/QtCore -isystem /home/g8row/Qt/6.8.0/gcc_64/include -isystem /home/g8row/Qt/6.8.0/gcc_64/mkspecs/linux-g++ -isystem /home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets -isystem /home/g8row/Qt/6.8.0/gcc_64/include/QtGui -isystem /home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork
+  OBJECT_DIR = CMakeFiles/cutefin.dir
+  OBJECT_FILE_DIR = CMakeFiles/cutefin.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target cutefin
@@ -105,7 +113,7 @@ build CMakeFiles/cutefin.dir/setupwindow.cpp.o: CXX_COMPILER__cutefin_unscanned_
 #############################################
 # Link the executable cutefin
 
-build cutefin: CXX_EXECUTABLE_LINKER__cutefin_Debug CMakeFiles/cutefin.dir/cutefin_autogen/mocs_compilation.cpp.o CMakeFiles/cutefin.dir/main.cpp.o CMakeFiles/cutefin.dir/loginscreen.cpp.o CMakeFiles/cutefin.dir/serverselect.cpp.o CMakeFiles/cutefin.dir/jellyfinapi.cpp.o CMakeFiles/cutefin.dir/setupwindow.cpp.o | /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Widgets.so.6.8.0 /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Network.so.6.8.0 /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Gui.so.6.8.0 /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Core.so.6.8.0 || cutefin_autogen cutefin_autogen_timestamp_deps
+build cutefin: CXX_EXECUTABLE_LINKER__cutefin_Debug CMakeFiles/cutefin.dir/cutefin_autogen/mocs_compilation.cpp.o CMakeFiles/cutefin.dir/main.cpp.o CMakeFiles/cutefin.dir/loginscreen.cpp.o CMakeFiles/cutefin.dir/serverselect.cpp.o CMakeFiles/cutefin.dir/jellyfinapi.cpp.o CMakeFiles/cutefin.dir/setupwindow.cpp.o CMakeFiles/cutefin.dir/homewindow.cpp.o | /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Widgets.so.6.8.0 /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Network.so.6.8.0 /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Gui.so.6.8.0 /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Core.so.6.8.0 || cutefin_autogen cutefin_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g
   LINK_LIBRARIES = -Wl,-rpath,/home/g8row/Qt/6.8.0/gcc_64/lib:  /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Widgets.so.6.8.0  /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Network.so.6.8.0  /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Gui.so.6.8.0  /usr/lib/x86_64-linux-gnu/libGLX.so  /usr/lib/x86_64-linux-gnu/libOpenGL.so  /home/g8row/Qt/6.8.0/gcc_64/lib/libQt6Core.so.6.8.0  -Wl,-rpath-link,/home/g8row/Qt/6.8.0/gcc_64/lib
   OBJECT_DIR = CMakeFiles/cutefin.dir

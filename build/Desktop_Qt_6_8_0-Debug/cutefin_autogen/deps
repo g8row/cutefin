@@ -4,6 +4,8 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/3.29.3/CMakeCXXCompiler.cmake \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/CMakeFiles/3.29.3/CMakeSystem.cmake \
 	/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
+	/home/g8row/Documents/qt/cutefin/homewindow.cpp \
+	/home/g8row/Documents/qt/cutefin/homewindow.h \
 	/home/g8row/Documents/qt/cutefin/jellyfinapi.cpp \
 	/home/g8row/Documents/qt/cutefin/jellyfinapi.h \
 	/home/g8row/Documents/qt/cutefin/loginscreen.cpp \
@@ -18,6 +20,7 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QMetaType \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QObject \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QSettings \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QSharedDataPointer \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QString \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QUrl \
@@ -102,6 +105,7 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopedpointer.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopeguard.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qset.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsettings.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qshareddata.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qshareddata_impl.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qsharedpointer.h \
@@ -200,14 +204,17 @@ cutefin_autogen/timestamp: \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkexports.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QLineEdit \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMainWindow \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QMessageBox \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/QWidget \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialog.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qframe.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qlineedit.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmainwindow.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qmessagebox.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qsizepolicy.h \
+	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtabwidget.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgets-config.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsexports.h \
 	/home/g8row/Qt/6.8.0/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
