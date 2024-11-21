@@ -1,7 +1,6 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <qwidget.h>
 
 #include "homewindow.h"
 

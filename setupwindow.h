@@ -12,7 +12,7 @@ class SetupWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SetupWindow(QWidget *parent = nullptr, QSettings *_settings = nullptr);
+    explicit SetupWindow(QSettings *_settings, JellyfinApi* _jellyfinApi, QWidget *parent = nullptr);
 private:
     ServerSelect *serverSelect = nullptr;
     LoginScreen *loginScreen = nullptr;

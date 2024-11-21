@@ -1711,6 +1711,9 @@
 			"path" : "/home/g8row/Qt/6.8.0/gcc_64/lib/cmake/Qt6Network/Qt6NetworkVersionlessAliasTargets.cmake"
 		},
 		{
+			"path" : "mainconfig.h.in"
+		},
+		{
 			"isCMake" : true,
 			"isExternal" : true,
 			"path" : "/home/g8row/Qt/Tools/CMake/share/cmake-3.29/Modules/GNUInstallDirs.cmake"

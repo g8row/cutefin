@@ -408,6 +408,7 @@
 		"/home/g8row/Qt/6.8.0/gcc_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginTargets-relwithdebinfo.cmake",
 		"/home/g8row/Qt/6.8.0/gcc_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginAdditionalTargetInfo.cmake",
 		"/home/g8row/Qt/6.8.0/gcc_64/lib/cmake/Qt6Network/Qt6NetworkVersionlessAliasTargets.cmake",
+		"/home/g8row/Documents/qt/cutefin/mainconfig.h.in",
 		"/home/g8row/Qt/Tools/CMake/share/cmake-3.29/Modules/GNUInstallDirs.cmake"
 	],
 	"CMAKE_SOURCE_DIR" : "/home/g8row/Documents/qt/cutefin",
@@ -432,6 +433,12 @@
 			"/home/g8row/Documents/qt/cutefin/loginscreen.h",
 			"MU",
 			"EWIEGA46WW/moc_loginscreen.cpp",
+			null
+		],
+		[
+			"/home/g8row/Documents/qt/cutefin/movie.h",
+			"MU",
+			"EWIEGA46WW/moc_movie.cpp",
 			null
 		],
 		[
@@ -460,6 +467,7 @@
 	],
 	"MOC_INCLUDES" : 
 	[
+		"/home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug",
 		"/home/g8row/Qt/6.8.0/gcc_64/include/QtCore",
 		"/home/g8row/Qt/6.8.0/gcc_64/include",
 		"/home/g8row/Qt/6.8.0/gcc_64/mkspecs/linux-g++",
@@ -511,6 +519,7 @@
 		[ "/home/g8row/Documents/qt/cutefin/jellyfinapi.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/loginscreen.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/main.cpp", "MU", null ],
+		[ "/home/g8row/Documents/qt/cutefin/movie.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/serverselect.cpp", "MU", null ],
 		[ "/home/g8row/Documents/qt/cutefin/setupwindow.cpp", "MU", null ]
 	],

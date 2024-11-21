@@ -1,6 +1,8 @@
 /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/EWIEGA46WW/moc_jellyfinapi.cpp: /home/g8row/Documents/qt/cutefin/jellyfinapi.h \
   /home/g8row/Documents/qt/cutefin/build/Desktop_Qt_6_8_0-Debug/cutefin_autogen/moc_predefs.h \
+  /home/g8row/Documents/qt/cutefin/movie.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QFlags \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QJsonObject \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QList \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QMetaType \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/QObject \
@@ -29,6 +31,8 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qbytearraylist.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qbytearrayview.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcalendar.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcborcommon.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcborvalue.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qchar.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcompare.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qcompare_impl.h \
@@ -45,6 +49,7 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatastream.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdatetime.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qdebug.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qendian.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qexceptionhandling.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qflags.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qfloat16.h \
@@ -60,6 +65,8 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiodevicebase.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterable.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qiterator.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qjsonobject.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qjsonvalue.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlatin1stringview.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlist.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qlocale.h \
@@ -80,6 +87,7 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qpair.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qprocessordetection.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qrefcount.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qregularexpression.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopedpointer.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qscopeguard.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qset.h \
@@ -124,6 +132,7 @@
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qtypes.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qurl.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qutf8stringview.h \
+  /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/quuid.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qvariant.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qvarlengtharray.h \
   /home/g8row/Qt/6.8.0/gcc_64/include/QtCore/qversiontagging.h \

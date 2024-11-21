@@ -8,10 +8,10 @@
 #include <QDebug>
 #include <QSettings>
 
-SetupWindow::SetupWindow(QWidget *parent, QSettings *_settings)
+SetupWindow::SetupWindow( QSettings *_settings, JellyfinApi* _jellyfinApi, QWidget *parent)
     : QWidget{parent}
 {
-    jellyfinApi = new JellyfinApi();
+    jellyfinApi = _jellyfinApi;
     settings = _settings;
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -35,6 +35,7 @@ SetupWindow::SetupWindow(QWidget *parent, QSettings *_settings)
     });
     connect(loginScreen, &LoginScreen::loginComplete, this, [this](const QString &accessToken){
         settings->setValue("access_token", accessToken);
+        jellyfinApi->setAccessToken(accessToken);
         this->close();
         emit setupComplete();
     });
