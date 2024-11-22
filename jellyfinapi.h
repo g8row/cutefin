@@ -18,12 +18,13 @@ public:
     const QString& getUrl() const;
     const QString& getAccessToken() const;
     void getLatestMovies();
-
+    void getItemImage(const QString &itemId, const QString &imageType, int quality,
+                      QObject *receiver, std::function<void(bool, const QPixmap &, const QString &)> callback);
 private slots:
 signals:
     void pingServerResponse(bool success, const QString &errorMessage = QString());
     void loginResponse(bool success, const QString &accessToken = QString());
-    void latestMoviesResponse(QList<Movie> movies, bool success, const QString &errorMessage = QString());
+    void latestMoviesResponse(bool success, QList<Movie> movies, const QString &errorMessage = QString());
 private:
     QNetworkAccessManager* manager;
     QString url;

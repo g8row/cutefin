@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QSysInfo>
+#include <QPixmap>
 
 
 JellyfinApi::JellyfinApi(QObject *parent)
@@ -48,6 +49,23 @@ const QString& JellyfinApi::getAccessToken() const {
     return accessToken;
 }
 
+void JellyfinApi::getItemImage(const QString &itemId, const QString &imageType, int quality,
+                               QObject *receiver, std::function<void(bool, const QPixmap &, const QString &)> callback) {
+    QString endpoint = QString("/Items/%1/Images/%2?quality=%3").arg(itemId, imageType, QString::number(quality));
+    QNetworkReply *reply = manager->get(getAuthenticatedRequest(endpoint));
+    connect(reply, &QNetworkReply::finished, receiver, [reply, receiver, callback]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QPixmap image;
+            image.loadFromData(reply->readAll());
+            callback(true, image, QString());
+        } else {
+            callback(false, QPixmap(), reply->errorString());
+        }
+        reply->deleteLater(); // Clean up the reply
+    });
+}
+
+
 void JellyfinApi::getLatestMovies(){
     QString endpoint = "/Items?Recursive=true&SortBy=DateCreated&SortOrder=Descending&IncludeItemTypes=Movie&Limit=15";
     QNetworkReply* reply = manager->get(getAuthenticatedRequest(endpoint));
@@ -67,10 +85,10 @@ void JellyfinApi::getLatestMovies(){
                 movies.append(movie);
             }
 
-            emit latestMoviesResponse(movies, true);
+            emit latestMoviesResponse(true, movies);
         } else {
             // Error handling
-            emit latestMoviesResponse({}, false, reply->errorString());
+            emit latestMoviesResponse(false, {}, reply->errorString());
         }
 
         reply->deleteLater();
@@ -81,11 +99,7 @@ QNetworkRequest JellyfinApi::getAuthenticatedRequest(const QString& endpoint) {
     QNetworkRequest request = QNetworkRequest(QUrl(url + endpoint));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QString authHeader = QString("MediaBrowser Token=\"%1\", Client=\"%2\", Device=\"%3\", DeviceId=\"%4\", Version=\"%5\"")
-                             .arg(accessToken)
-                             .arg("cutefin")
-                             .arg(device)
-                             .arg(deviceId)
-                             .arg(version);
+                             .arg(accessToken, "cutefin", device, deviceId, version);
     request.setRawHeader("Authorization", authHeader.toUtf8());
     return request;
 }
@@ -94,10 +108,8 @@ void JellyfinApi::login(const QString &user, const QString &password){
     QNetworkRequest request = QNetworkRequest(QUrl(url + "/Users/AuthenticateByName"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QString authHeader = QString("MediaBrowser Client=\"%1\", Device=\"%2\", DeviceId=\"%3\", Version=\"%4\"")
-                             .arg("cutefin") // Replace with your app name
-                             .arg("PC")           // Replace with your device name
-                             .arg("g8row-debian") // Replace with a unique device ID
-                             .arg("0.0.1");       // Replace with your app version
+                             .arg("cutefin", device, deviceId, version);
+
     request.setRawHeader("Authorization", authHeader.toUtf8());
 
     QJsonObject jsonPayload;

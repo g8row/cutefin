@@ -34,6 +34,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         setupwindow.h setupwindow.cpp
         homewindow.h homewindow.cpp
         movie.h movie.cpp
+        moviecard.h moviecard.cpp
     )
 
 
