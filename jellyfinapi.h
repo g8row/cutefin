@@ -20,6 +20,7 @@ public:
     void getLatestMovies();
     void getItemImage(const QString &itemId, const QString &imageType, int quality,
                       QObject *receiver, std::function<void(bool, const QPixmap &, const QString &)> callback);
+    ~JellyfinApi();
 private slots:
 signals:
     void pingServerResponse(bool success, const QString &errorMessage = QString());

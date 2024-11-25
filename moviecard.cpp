@@ -1,14 +1,14 @@
 #include "moviecard.h"
 
-#include <QVBoxLayout>
 
 MovieCard::MovieCard(const Movie &movie, QWidget *parent)
     : QWidget(parent), movie(movie)
 {
-    this->setLayout(new QVBoxLayout);
+    layout = new QVBoxLayout;
+    this->setLayout(layout);
     this->setFixedWidth(175); // Set consistent card width
 
-    this->layout()->setAlignment(Qt::AlignHCenter);
+    layout->setAlignment(Qt::AlignHCenter);
 
     titleLabel = new QLabel(movie.getName());
     titleLabel->setAlignment(Qt::AlignCenter);
@@ -19,8 +19,8 @@ MovieCard::MovieCard(const Movie &movie, QWidget *parent)
     posterLabel->setAlignment(Qt::AlignCenter);
     posterLabel->setStyleSheet("border: 1px solid black; background-color: #eaeaea;"); // Placeholder styling
 
-    this->layout()->addWidget(posterLabel);
-    this->layout()->addWidget(titleLabel);
+    layout->addWidget(posterLabel);
+    layout->addWidget(titleLabel);
 
     this->setStyleSheet("border: 1px solid transparent; border-radius: 5px;");
 }
@@ -57,4 +57,10 @@ void MovieCard::leaveEvent(QEvent *event)
     // Revert the hover effect
     this->setStyleSheet("border: 1px solid transparent; background-color: transparent; border-radius: 5px;");
     QWidget::leaveEvent(event);
+}
+
+MovieCard::~MovieCard(){
+    delete posterLabel;
+    delete titleLabel;
+    delete layout;
 }

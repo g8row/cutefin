@@ -2,7 +2,6 @@
     #include "setupwindow.h"
     #include "moviecard.h"
 
-    #include <QSettings>
     #include <QScrollArea>
     #include <QHBoxLayout>
     #include <QVBoxLayout>
@@ -11,17 +10,18 @@
     HomeWindow::HomeWindow(QWidget *parent)
         : QMainWindow{parent}
     {
-        QSettings *settings = new QSettings("g8row", "cutefin");
+        settings = new QSettings("g8row", "cutefin");
         SetupWindow *setupWindow = nullptr;
-        JellyfinApi* jellyfinApi = new JellyfinApi(this);
+        jellyfinApi = new JellyfinApi(this);
 
         this->setMinimumSize(600,500);
 
         this->show();
         if(!settings->contains("server_name") or !settings->contains("access_token")){
             setupWindow = new SetupWindow(settings, jellyfinApi, nullptr);
-            connect(setupWindow, &SetupWindow::setupComplete, this, [this](){
+            connect(setupWindow, &SetupWindow::setupComplete, this, [this, setupWindow](){
                 this->show();
+                delete setupWindow;
             });
             this->hide();
         } else {
@@ -38,6 +38,8 @@
         moviesWidget->setMinimumHeight(300);
         moviesArea->setWidget(moviesWidget);
         moviesArea->setMinimumHeight(330);
+        moviesArea->setMaximumHeight(330);
+
 
         // Main layout for the window
         QScrollArea *mainArea = new QScrollArea(this);
@@ -46,19 +48,10 @@
         QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
         mainLayout->addWidget(new QLabel("Latest Movies", this));
         mainLayout->addWidget(moviesArea);
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
-        mainLayout->addWidget(new QLabel("Latest Movies", this));
         mainArea->setWidget(mainWidget);
         this->setCentralWidget(mainArea);
 
-        connect(jellyfinApi, &JellyfinApi::latestMoviesResponse, this, [this, moviesWidget, jellyfinApi](bool success, QList<Movie> movies, const QString &errorMessage = QString()){
+        connect(jellyfinApi, &JellyfinApi::latestMoviesResponse, this, [this, moviesWidget](bool success, QList<Movie> movies, const QString &errorMessage = QString()){
             if (success) {
                 for (const Movie &movie : movies) {
                     MovieCard *movieCard = new MovieCard(movie, moviesWidget);
@@ -71,4 +64,9 @@
         });
 
         jellyfinApi->getLatestMovies();
+    }
+
+    HomeWindow::~HomeWindow(){
+        delete jellyfinApi;
+        delete settings;
     }

@@ -15,11 +15,10 @@ JellyfinApi::JellyfinApi(QObject *parent)
     : QObject{parent}
 {
     manager = new QNetworkAccessManager(this);
-    QSysInfo *info = new QSysInfo();
-    deviceId = info->machineUniqueId();
-    device = info->machineHostName();
+    QSysInfo info = QSysInfo();
+    deviceId = info.machineUniqueId();
+    device = info.machineHostName();
     version = QString::number(cutefin_VERSION_MAJOR) + "." + QString::number(cutefin_VERSION_MINOR);
-    delete info;
 }
 
 void JellyfinApi::pingServer(const QString &url){
@@ -145,5 +144,8 @@ void JellyfinApi::login(const QString &user, const QString &password){
     });
 }
 
+JellyfinApi::~JellyfinApi(){
+    delete manager;
+}
 
 

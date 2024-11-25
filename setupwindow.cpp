@@ -33,10 +33,13 @@ SetupWindow::SetupWindow( QSettings *_settings, JellyfinApi* _jellyfinApi, QWidg
         jellyfinApi->setUrl(url);
         stack->setCurrentWidget(loginScreen);
     });
-    connect(loginScreen, &LoginScreen::loginComplete, this, [this](const QString &accessToken){
+    connect(loginScreen, &LoginScreen::loginComplete, this, [this, stack, layout](const QString &accessToken){
         settings->setValue("access_token", accessToken);
         jellyfinApi->setAccessToken(accessToken);
+        this->deleteLater();
         this->close();
+        delete layout;
+        delete stack;
         emit setupComplete();
     });
 
@@ -45,4 +48,9 @@ SetupWindow::SetupWindow( QSettings *_settings, JellyfinApi* _jellyfinApi, QWidg
     this->setMinimumSize(300, 300);
     this->setMaximumSize(300, 300);
     this->show();
+}
+
+SetupWindow::~SetupWindow(){
+    delete serverSelect;
+    delete loginScreen;
 }

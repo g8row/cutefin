@@ -16,11 +16,11 @@ ServerSelect::ServerSelect(QWidget *parent, JellyfinApi *_jellyfinApi)
     jellyfinApi = _jellyfinApi;
 
     this->setMaximumSize(300,100);
-    QVBoxLayout *layout = new QVBoxLayout();
+    layout = new QVBoxLayout();
     serverField = new QLineEdit();
-    QFormLayout *formLayout = new QFormLayout();
+    formLayout = new QFormLayout();
     formLayout->addRow(tr("server name:"), serverField);
-    QPushButton *addServerButton = new QPushButton("add server");
+    addServerButton = new QPushButton("add server");
 
     box = new QMessageBox();
     box->setText("Network Error");
@@ -44,3 +44,12 @@ ServerSelect::ServerSelect(QWidget *parent, JellyfinApi *_jellyfinApi)
 
     this->setLayout(layout);
 }
+
+ServerSelect::~ServerSelect(){
+    delete serverField;
+    delete box;
+    delete formLayout;
+    delete addServerButton;
+    delete layout;
+}
+
