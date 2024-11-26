@@ -35,6 +35,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         homewindow.h homewindow.cpp
         movie.h movie.cpp
         moviecard.h moviecard.cpp
+        homewidget.h homewidget.cpp
+        moviewidget.h moviewidget.cpp
+        mediawidget.h
     )
 
 

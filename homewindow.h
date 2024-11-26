@@ -3,7 +3,12 @@
 
 #include <QMainWindow>
 #include <QSettings>
+#include <QScrollArea>
+#include <QStackedWidget>
 #include "jellyfinapi.h"
+#include "homewidget.h"
+#include "mediawidget.h"
+
 class HomeWindow : public QMainWindow
 {
     Q_OBJECT
@@ -13,7 +18,16 @@ public:
 private:
     JellyfinApi* jellyfinApi;
     QSettings *settings;
+    QScrollArea *mainArea;
+    QStackedWidget *mainWidget;
+    HomeWidget *homeWidget;
+
+    QWidget *previousWidget;
+
+    void createHomeWidget();
 signals:
+public slots:
+    void setCurrentWidget(MediaWidget* widget);
 };
 
 #endif // HOMEWINDOW_H
