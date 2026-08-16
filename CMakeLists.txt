@@ -1,95 +1,61 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(cutefin VERSION 0.1 LANGUAGES CXX)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+cmake_minimum_required(VERSION 3.21)
+project(cutefin LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools Network Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Network Core)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC OFF)
+set(CMAKE_AUTORCC ON)
 
-set(TS_FILES cutefin_en_US.ts)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-set(PROJECT_SOURCES
-        main.cpp
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Gui Concurrent Test)
 
-
-
-        ${TS_FILES}
-)
-
-configure_file(mainconfig.h.in mainconfig.h)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(cutefin
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-        loginscreen.h loginscreen.cpp
-        serverselect.h serverselect.cpp
-        jellyfinapi.h jellyfinapi.cpp
-        setupwindow.h setupwindow.cpp
-        homewindow.h homewindow.cpp
-        movie.h movie.cpp
-        moviecard.h moviecard.cpp
-        homewidget.h homewidget.cpp
-        moviewidget.h moviewidget.cpp
-        mediawidget.h
-    )
-
-
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET cutefin APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    if(ANDROID)
-        add_library(cutefin SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(cutefin
-            ${PROJECT_SOURCES}
-        )
+option(CUTEFIN_ENABLE_MPV "Build the libmpv-backed player" ON)
+if(CUTEFIN_ENABLE_MPV)
+    find_package(MPV)
+    # QOpenGLWidget (MpvWidget's base class) lives in Qt6::OpenGLWidgets, a
+    # separate module from Widgets since Qt 6 -- DESIGN.md §2's component
+    # list predates the player and doesn't mention it.
+    find_package(Qt6 QUIET COMPONENTS OpenGLWidgets)
+    if(NOT MPV_FOUND OR NOT Qt6OpenGLWidgets_FOUND)
+        message(WARNING "libmpv and/or Qt6::OpenGLWidgets not found; "
+                         "continuing without player support. Set CUTEFIN_ENABLE_MPV=OFF "
+                         "to silence this warning.")
+        set(CUTEFIN_ENABLE_MPV OFF)
     endif()
-
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(cutefin PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Core)
+# ---------------------------------------------------------------------------
+# cutefin_core: everything in src/core (Settings, NetworkQueue, ImageCache,
+# BlurHash, Formatting) and src/api (Models, JellyfinClient). This is the
+# library later phases (ui/, player/) link against and unit-test independently
+# of the GUI. Each subdirectory appends its own sources via target_sources()
+# so parallel agents editing core/ and api/ never touch this file.
+# ---------------------------------------------------------------------------
+add_library(cutefin_core STATIC)
+target_include_directories(cutefin_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(cutefin_core PUBLIC Qt6::Widgets Qt6::Network Qt6::Gui Qt6::Concurrent)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.cutefin)
+add_subdirectory(src/core)
+add_subdirectory(src/api)
+
+# ---------------------------------------------------------------------------
+# cutefin executable. src/main.cpp lives here; src/ui and src/player append
+# their own sources via target_sources() in their own CMakeLists.txt as those
+# directories are filled in, so nothing else in this file needs to change.
+# ---------------------------------------------------------------------------
+add_executable(cutefin src/main.cpp)
+target_link_libraries(cutefin PRIVATE cutefin_core Qt6::Widgets Qt6::Network Qt6::Gui)
+
+add_subdirectory(src/ui)
+
+if(CUTEFIN_ENABLE_MPV)
+    add_subdirectory(src/player)
+    target_link_libraries(cutefin PRIVATE MPV::MPV Qt6::OpenGLWidgets)
+    target_compile_definitions(cutefin PRIVATE CUTEFIN_ENABLE_MPV)
 endif()
-set_target_properties(cutefin PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
 
-include(GNUInstallDirs)
-install(TARGETS cutefin
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(cutefin)
-endif()
-
-target_include_directories(cutefin PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
+enable_testing()
+add_subdirectory(tests)
