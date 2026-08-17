@@ -120,7 +120,58 @@ MediaItem MediaItem::fromJson(const QJsonObject &obj)
 
     item.userData = UserData::fromJson(obj.value(QStringLiteral("UserData")).toObject());
 
+    for (const QJsonValue &v : obj.value(QStringLiteral("Chapters")).toArray())
+        item.chapters.append(Chapter::fromJson(v.toObject()));
+
+    // Trickplay is keyed mediaSourceId -> tileWidth -> info, and the tile
+    // width arrives as an *object key*, i.e. a string, which has to become
+    // the int that goes back into the tile URL path.
+    const QJsonObject trickplayObj = obj.value(QStringLiteral("Trickplay")).toObject();
+    for (auto sourceIt = trickplayObj.constBegin(); sourceIt != trickplayObj.constEnd(); ++sourceIt) {
+        const QJsonObject widths = sourceIt.value().toObject();
+        QHash<int, TrickplayInfo> byWidth;
+        for (auto widthIt = widths.constBegin(); widthIt != widths.constEnd(); ++widthIt) {
+            bool ok = false;
+            const int width = widthIt.key().toInt(&ok);
+            if (!ok)
+                continue;
+            byWidth.insert(width, TrickplayInfo::fromJson(widthIt.value().toObject()));
+        }
+        if (!byWidth.isEmpty())
+            item.trickplay.insert(sourceIt.key(), byWidth);
+    }
+
     return item;
+}
+
+Chapter Chapter::fromJson(const QJsonObject &obj)
+{
+    Chapter chapter;
+    chapter.name = obj.value(QStringLiteral("Name")).toString();
+    chapter.startTicks = static_cast<qint64>(obj.value(QStringLiteral("StartPositionTicks")).toDouble());
+    chapter.imageTag = obj.value(QStringLiteral("ImageTag")).toString();
+    return chapter;
+}
+
+TrickplayInfo TrickplayInfo::fromJson(const QJsonObject &obj)
+{
+    TrickplayInfo info;
+    info.width = obj.value(QStringLiteral("Width")).toInt();
+    info.height = obj.value(QStringLiteral("Height")).toInt();
+    info.tileWidth = obj.value(QStringLiteral("TileWidth")).toInt();
+    info.tileHeight = obj.value(QStringLiteral("TileHeight")).toInt();
+    info.thumbnailCount = obj.value(QStringLiteral("ThumbnailCount")).toInt();
+    info.intervalMs = obj.value(QStringLiteral("Interval")).toInt();
+    return info;
+}
+
+MediaSegment MediaSegment::fromJson(const QJsonObject &obj)
+{
+    MediaSegment segment;
+    segment.type = obj.value(QStringLiteral("Type")).toString();
+    segment.startTicks = static_cast<qint64>(obj.value(QStringLiteral("StartTicks")).toDouble());
+    segment.endTicks = static_cast<qint64>(obj.value(QStringLiteral("EndTicks")).toDouble());
+    return segment;
 }
 
 QList<MediaItem> parseItemList(const QJsonDocument &doc)

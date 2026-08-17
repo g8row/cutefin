@@ -263,6 +263,24 @@ void MainWindow::playItem(const MediaItem &item, bool resume)
                                   m_player->resize(1280, 720);
                                   m_player->playItem(item.id, resolution.playSessionId, resolution.mediaSourceId,
                                                      resolution.url, startSeconds);
+
+                                  // Chapters/trickplay/streams are a second,
+                                  // heavier request deliberately kept off the
+                                  // path to first frame: playback starts now,
+                                  // the seek bar gains its markers a moment
+                                  // later.
+                                  const bool transcoding = resolution.isTranscoding;
+                                  m_client->fetchItemDetails(
+                                      item.id, this,
+                                      [this, transcoding](bool ok, const MediaItem &full, const QString &error) {
+                                          if (!ok) {
+                                              qWarning() << "MainWindow: item details failed:" << error;
+                                              return;
+                                          }
+                                          if (m_player)
+                                              m_player->setPlaybackDetails(full, transcoding, {});
+                                      });
+
                                   m_player->show();
                                   m_player->raise();
                                   m_player->activateWindow();

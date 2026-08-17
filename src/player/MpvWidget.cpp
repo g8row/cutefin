@@ -398,3 +398,103 @@ void MpvWidget::setSubtitleTrack(int id)
     const QByteArray value = id < 0 ? QByteArrayLiteral("no") : QByteArray::number(id);
     mpv_set_property_string(m_mpv, "sid", value.constData());
 }
+
+void MpvWidget::setSecondarySubtitleTrack(int id)
+{
+    if (!m_mpv)
+        return;
+    const QByteArray value = id < 0 ? QByteArrayLiteral("no") : QByteArray::number(id);
+    mpv_set_property_string(m_mpv, "secondary-sid", value.constData());
+}
+
+void MpvWidget::addSubtitleUrl(const QUrl &url, const QString &title, const QString &language)
+{
+    if (!m_mpv || !url.isValid())
+        return;
+    // "auto" keeps mpv from switching to the new track immediately: the
+    // caller decides what is selected, and a subtitle that turns itself on
+    // just because it finished downloading is a surprise.
+    command({QStringLiteral("sub-add"), url.toString(QUrl::FullyEncoded), QStringLiteral("auto"), title, language});
+}
+
+void MpvWidget::setSpeed(double speed)
+{
+    if (!m_mpv)
+        return;
+    m_speed = speed;
+    setProperty("speed", QString::number(speed, 'g', 6));
+}
+
+QString MpvWidget::stringProperty(const char *name) const
+{
+    if (!m_mpv)
+        return QString();
+    char *value = mpv_get_property_string(m_mpv, name);
+    if (!value)
+        return QString();
+    const QString result = QString::fromUtf8(value);
+    mpv_free(value);
+    return result;
+}
+
+double MpvWidget::doubleProperty(const char *name, double fallback) const
+{
+    if (!m_mpv)
+        return fallback;
+    double value = 0.0;
+    if (mpv_get_property(m_mpv, name, MPV_FORMAT_DOUBLE, &value) < 0)
+        return fallback;
+    return value;
+}
+
+qint64 MpvWidget::intProperty(const char *name, qint64 fallback) const
+{
+    if (!m_mpv)
+        return fallback;
+    int64_t value = 0;
+    if (mpv_get_property(m_mpv, name, MPV_FORMAT_INT64, &value) < 0)
+        return fallback;
+    return static_cast<qint64>(value);
+}
+
+bool MpvWidget::flagProperty(const char *name, bool fallback) const
+{
+    if (!m_mpv)
+        return fallback;
+    int value = 0;
+    if (mpv_get_property(m_mpv, name, MPV_FORMAT_FLAG, &value) < 0)
+        return fallback;
+    return value != 0;
+}
+
+void MpvWidget::setProperty(const char *name, const QString &value)
+{
+    if (!m_mpv)
+        return;
+    const QByteArray utf8 = value.toUtf8();
+    mpv_set_property_string(m_mpv, name, utf8.constData());
+}
+
+QStringList MpvWidget::applyOptionLines(const QStringList &lines)
+{
+    QStringList rejected;
+    if (!m_mpv)
+        return lines;
+
+    for (const QString &rawLine : lines) {
+        QString line = rawLine.trimmed();
+        if (line.isEmpty() || line.startsWith(QLatin1Char('#')))
+            continue;
+
+        const int separator = line.indexOf(QLatin1Char('='));
+        // A bare `key` line is mpv.conf shorthand for `key=yes`.
+        const QString key = separator < 0 ? line : line.left(separator).trimmed();
+        const QString value = separator < 0 ? QStringLiteral("yes") : line.mid(separator + 1).trimmed();
+
+        const QByteArray keyUtf8 = key.toUtf8();
+        const QByteArray valueUtf8 = value.toUtf8();
+        if (mpv_set_property_string(m_mpv, keyUtf8.constData(), valueUtf8.constData()) < 0)
+            rejected.append(key);
+    }
+    return rejected;
+}

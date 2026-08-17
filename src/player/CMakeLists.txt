@@ -5,4 +5,10 @@ target_sources(cutefin PRIVATE
     PlayerWindow.cpp
     PlaybackReporter.h
     PlaybackReporter.cpp
+    TrickplayCache.h
+    TrickplayCache.cpp
+    SeekBar.h
+    SeekBar.cpp
+    StatsOverlay.h
+    StatsOverlay.cpp
 )

@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QPropertyAnimation>
 #include <QResizeEvent>
+#include <QDebug>
 #include <QScrollBar>
 #include <QShowEvent>
 #include <QTimer>

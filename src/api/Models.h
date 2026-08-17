@@ -56,6 +56,48 @@ struct Person {
     static Person fromJson(const QJsonObject &obj);
 };
 
+// A named chapter marker. `startTicks` is 100ns units like every other
+// position in the API.
+struct Chapter {
+    QString name;
+    qint64 startTicks = 0;
+    QString imageTag; // empty when the chapter has no extracted image
+
+    static Chapter fromJson(const QJsonObject &obj);
+};
+
+// Describes one trickplay tile sheet resolution for a media source. Sheets are
+// `tileWidth` x `tileHeight` grids of `width` x `height` thumbnails, one
+// thumbnail every `intervalMs`. To find thumbnail i for position ms:
+//   i = ms / intervalMs
+//   sheet   = i / (tileWidth * tileHeight)
+//   row     = (i / tileWidth) % tileHeight
+//   column  = i % tileWidth
+struct TrickplayInfo {
+    int width = 0;
+    int height = 0;
+    int tileWidth = 0;
+    int tileHeight = 0;
+    int thumbnailCount = 0;
+    int intervalMs = 0;
+
+    bool isValid() const { return width > 0 && tileWidth > 0 && tileHeight > 0 && intervalMs > 0; }
+    int thumbnailsPerSheet() const { return tileWidth * tileHeight; }
+
+    static TrickplayInfo fromJson(const QJsonObject &obj);
+};
+
+// An intro/outro/recap region, from /MediaSegments/{itemId}. Servers without
+// an intro-detection plugin return none of these, so every consumer must
+// treat an empty list as normal rather than as an error.
+struct MediaSegment {
+    QString type; // "Intro", "Outro", "Recap", "Preview", "Commercial"
+    qint64 startTicks = 0;
+    qint64 endTicks = 0;
+
+    static MediaSegment fromJson(const QJsonObject &obj);
+};
+
 // The workhorse type: movies, series, seasons, episodes, and library views
 // (UserViews) all come back through this one shape.
 struct MediaItem {
@@ -88,6 +130,13 @@ struct MediaItem {
     int parentIndexNumber = -1;
 
     UserData userData;
+
+    // Only populated when the request asked for them via `fields`; an item
+    // from a list endpoint has these empty.
+    QList<Chapter> chapters;
+    // mediaSourceId -> (tile width -> info). The width key is what goes in
+    // the /Videos/{id}/Trickplay/{width}/{index}.jpg path.
+    QHash<QString, QHash<int, TrickplayInfo>> trickplay;
 
     static MediaItem fromJson(const QJsonObject &obj);
 };

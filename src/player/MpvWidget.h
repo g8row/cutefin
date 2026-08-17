@@ -55,6 +55,33 @@ public:
 
     void setAudioTrack(int id);
     void setSubtitleTrack(int id);
+    // mpv's `secondary-sid`. Pass -1 to disable.
+    void setSecondarySubtitleTrack(int id);
+
+    // Loads an external subtitle file/URL into the running mpv instance.
+    // Jellyfin's IsExternal streams are not inside the container, so mpv
+    // cannot see them without this (FEATURES.md §C2).
+    void addSubtitleUrl(const QUrl &url, const QString &title, const QString &language);
+
+    void setSpeed(double speed);
+    double speed() const { return m_speed; }
+
+    // --- Generic property access ---
+    // The stats overlay and the subtitle/audio presentation settings both
+    // need a long tail of mpv properties that would be pointless to wrap
+    // one-by-one. These are thin, synchronous wrappers over
+    // mpv_get_property/mpv_set_property_string; all are no-ops (returning the
+    // given default) when mpv failed to initialize.
+    QString stringProperty(const char *name) const;
+    double doubleProperty(const char *name, double fallback = 0.0) const;
+    qint64 intProperty(const char *name, qint64 fallback = 0) const;
+    bool flagProperty(const char *name, bool fallback = false) const;
+    void setProperty(const char *name, const QString &value);
+
+    // Applies free-form `key=value` lines (an mpv.conf fragment). Returns the
+    // keys mpv rejected, so the settings UI can report them rather than
+    // swallowing them (FEATURES.md §C5 "Advanced").
+    QStringList applyOptionLines(const QStringList &lines);
 
     qint64 position() const { return m_position; }
     qint64 duration() const { return m_duration; }
@@ -97,6 +124,7 @@ private:
     bool m_paused = false;
     bool m_muted = false;
     int m_volume = 100;
+    double m_speed = 1.0;
     QList<Track> m_tracks;
 };
 

@@ -294,6 +294,87 @@ void JellyfinClient::fetchItem(const QString &itemId, QObject *context, const It
             });
 }
 
+void JellyfinClient::fetchItemDetails(const QString &itemId, QObject *context, const ItemCallback &callback)
+{
+    const QString path = QStringLiteral("/Items/%1?userId=%2&fields=%3")
+                             .arg(itemId, m_userId,
+                                  QStringLiteral("Chapters,Trickplay,MediaSources,MediaStreams,Overview,People,Genres"));
+    getJson(path, NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, MediaItem(), error);
+                    return;
+                }
+                if (callback)
+                    callback(true, MediaItem::fromJson(doc.object()), QString());
+            });
+}
+
+void JellyfinClient::fetchMediaSources(const QString &itemId, QObject *context,
+                                        const MediaSourcesCallback &callback)
+{
+    const QString path =
+        QStringLiteral("/Items/%1?userId=%2&fields=MediaSources,MediaStreams").arg(itemId, m_userId);
+    getJson(path, NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, QList<MediaSource>(), error);
+                    return;
+                }
+                QList<MediaSource> sources;
+                for (const QJsonValue &v : doc.object().value(QStringLiteral("MediaSources")).toArray())
+                    sources.append(MediaSource::fromJson(v.toObject()));
+                if (callback)
+                    callback(true, sources, QString());
+            });
+}
+
+void JellyfinClient::fetchMediaSegments(const QString &itemId, QObject *context,
+                                         const MediaSegmentsCallback &callback)
+{
+    getJson(QStringLiteral("/MediaSegments/%1").arg(itemId), NetworkQueue::Priority::Metadata,
+            AuthMode::Authorized, context, [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, QList<MediaSegment>(), error);
+                    return;
+                }
+                QList<MediaSegment> segments;
+                for (const QJsonValue &v : doc.object().value(QStringLiteral("Items")).toArray())
+                    segments.append(MediaSegment::fromJson(v.toObject()));
+                if (callback)
+                    callback(true, segments, QString());
+            });
+}
+
+QUrl JellyfinClient::trickplayTileUrl(const QString &itemId, int thumbnailWidth, int sheetIndex) const
+{
+    QUrl url(m_serverUrl
+             + QStringLiteral("/Videos/%1/Trickplay/%2/%3.jpg").arg(itemId).arg(thumbnailWidth).arg(sheetIndex));
+    QUrlQuery query;
+    if (!m_accessToken.isEmpty())
+        query.addQueryItem(QStringLiteral("api_key"), m_accessToken);
+    url.setQuery(query);
+    return url;
+}
+
+QUrl JellyfinClient::subtitleStreamUrl(const QString &itemId, const QString &mediaSourceId, int streamIndex,
+                                        const QString &format) const
+{
+    QUrl url(m_serverUrl
+             + QStringLiteral("/Videos/%1/%2/Subtitles/%3/Stream.%4")
+                   .arg(itemId, mediaSourceId)
+                   .arg(streamIndex)
+                   .arg(format));
+    QUrlQuery query;
+    if (!m_accessToken.isEmpty())
+        query.addQueryItem(QStringLiteral("api_key"), m_accessToken);
+    url.setQuery(query);
+    return url;
+}
+
 QString JellyfinClient::buildItemsPath(const ItemQuery &query) const
 {
     QUrlQuery q;

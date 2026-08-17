@@ -113,6 +113,40 @@ public:
                               const FiltersCallback &callback);
     static LibraryFilters parseLibraryFilters(const QJsonObject &obj);
 
+    // Like fetchItem(), but asks for the heavyweight fields the player needs
+    // (Chapters, Trickplay, MediaSources/MediaStreams). Kept separate so
+    // browsing never pays for them.
+    void fetchItemDetails(const QString &itemId, QObject *context, const ItemCallback &callback);
+
+    // The media sources (and therefore the audio/subtitle stream list) for an
+    // item. Used to add Jellyfin's external subtitles to mpv, which cannot
+    // see them on its own.
+    using MediaSourcesCallback =
+        std::function<void(bool ok, const QList<MediaSource> &sources, const QString &error)>;
+    void fetchMediaSources(const QString &itemId, QObject *context, const MediaSourcesCallback &callback);
+
+    // Intro/outro regions. An empty list is the normal result on a server
+    // with no intro-detection plugin -- not an error.
+    using MediaSegmentsCallback =
+        std::function<void(bool ok, const QList<MediaSegment> &segments, const QString &error)>;
+    void fetchMediaSegments(const QString &itemId, QObject *context, const MediaSegmentsCallback &callback);
+
+    // One trickplay tile sheet.
+    //
+    // `thumbnailWidth` is the *pixel* width of a single thumbnail (320 on the
+    // test server) -- i.e. TrickplayInfo::width, which is also the key of
+    // MediaItem::trickplay's inner hash. It is NOT TrickplayInfo::tileWidth,
+    // which is the number of thumbnail columns per sheet (10). Both are ints
+    // on the same struct, so passing the wrong one compiles fine and quietly
+    // requests a resolution the server never generated.
+    //
+    // `sheetIndex` is thumbnailIndex / (tileWidth * tileHeight).
+    QUrl trickplayTileUrl(const QString &itemId, int thumbnailWidth, int sheetIndex) const;
+
+    // A downloadable external subtitle stream, for `sub-add` in mpv.
+    QUrl subtitleStreamUrl(const QString &itemId, const QString &mediaSourceId, int streamIndex,
+                            const QString &format = QStringLiteral("srt")) const;
+
     // --- User item state ---
     // Jellyfin models these as set/unset on one path: POST marks, DELETE
     // clears. Both verified to return 200 on 10.11.8. Callers normally update

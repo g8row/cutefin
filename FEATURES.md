@@ -29,7 +29,7 @@ native widgets, and mpv driven directly rather than through a JS bridge.
 | Chapters | `/Items/{id}?fields=Chapters` | ✅ 14 named chapters w/ `StartPositionTicks` on the test movie |
 | Trickplay | `/Items/{id}?fields=Trickplay` → `/Videos/{id}/Trickplay/{width}/{index}.jpg` | ✅ 320×132 thumbs, 10×10 tiles, 702 thumbs, 10 s interval |
 | Chapter images | `/Items/{id}/Images/Chapter/{index}` | ✅ |
-| Media segments (skip intro/credits) | `/MediaSegments/{itemId}` | ✅ endpoint live (empty for untagged content) |
+| Media segments (skip intro/credits) | `/MediaSegments/{itemId}` | ✅ endpoint live, but returns **zero segments for every item** on the test server — no intro-detection plugin is configured. Skip-intro can be built against it, but cannot be verified here; do not mark it done on the strength of code review alone. |
 | External subtitle fetch | `/Videos/{id}/{msId}/Subtitles/{index}/Stream.srt` | ✅ returns SRT |
 | Subtitle search (OpenSubtitles) | `/Items/{id}/RemoteSearch/Subtitles/{lang}` | ✅ returns provider results |
 | Quick Connect | **`GET`** `/QuickConnect/Initiate` | ✅ returns `{Secret, Code}` — note: **GET**, not POST |
@@ -112,7 +112,10 @@ matching where the platform allows, remember window geometry and fullscreen stat
 
 ### C3. Debug / stats overlay (Phase 3)
 
-Toggle with `I` (mpv convention) or `Ctrl+Shift+D`. A translucent panel over the video,
+Toggle with `I` (mpv convention) or `Ctrl+Shift+D` — note that Qt maps
+`Qt::ControlModifier` to **Command** on macOS, so that binding is Cmd+Shift+D
+there, which is the right platform convention. Same for the Ctrl+Shift+C
+"copy diagnostics" binding. A translucent panel over the video,
 palette-derived, monospace, updating at 2 Hz — never per-frame.
 
 **Video** — codec + profile, decoder in use, **hwdec active** (`hwdec-current`),
@@ -190,7 +193,8 @@ preferences window):
 | 2a | mpv player core | done |
 | 2b | UI shell, home, detail, search | done |
 | 2c | Library page (paged grid, sort/filter), person pages, collections | done |
-| 3 | Player advanced: tracks, subs, chapters, trickplay, segments, next-up, stats overlay | |
+| 3a | Player advanced: tracks, external subs, chapters, trickplay, speed, stats overlay | done |
+| 3b | Skip intro/credits, next-episode countdown, subtitle/audio presentation, remembered track choices | next |
 | 4 | Settings, WebSocket remote control, Quick Connect, MPRIS/media keys, multi-server | |
 | 5 | README, packaging (AppImage/Flatpak, .app bundle), live test target, polish | |
 

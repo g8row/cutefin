@@ -1,5 +1,6 @@
 #pragma once
 
+#include "api/Models.h"
 #include "player/MpvWidget.h"
 
 #include <QList>
@@ -9,6 +10,9 @@
 
 class JellyfinClient;
 class PlaybackReporter;
+class SeekBar;
+class StatsOverlay;
+class TrickplayCache;
 class QCloseEvent;
 class QGraphicsOpacityEffect;
 class QKeyEvent;
@@ -39,6 +43,12 @@ public:
     // the given item alongside playback.
     void playItem(const QString &itemId, const QString &playSessionId, const QString &mediaSourceId,
                   const QUrl &url, qint64 startSeconds = 0, const QStringList &httpHeaderFields = {});
+
+    // Supplies the server-side extras for the item now playing: chapter
+    // markers, trickplay thumbnails, external subtitle tracks and the
+    // transcode context the stats overlay reports. Safe to call after
+    // playItem(); each part degrades independently when absent.
+    void setPlaybackDetails(const MediaItem &item, bool transcoding, const QStringList &transcodeReasons);
 
     // Minimal entry point with no server-side progress reporting; used by
     // the standalone debug harness (`cutefin --play <url>`).
@@ -77,13 +87,23 @@ private:
     void seekRelativeSeconds(qint64 delta);
     void adjustVolume(int delta);
 
+    void toggleStatsOverlay();
+    void copyDiagnostics();
+    void jumpChapter(int direction);
+    void showChapterMenu();
+    void adjustSpeed(double factor);
+    void loadExternalSubtitles(const MediaItem &item);
+
     MpvWidget *m_mpv;
     JellyfinClient *m_client;
     PlaybackReporter *m_reporter = nullptr;
+    TrickplayCache *m_trickplay = nullptr;
+    StatsOverlay *m_stats = nullptr;
 
     QWidget *m_overlay;
     QToolButton *m_playPauseButton;
-    QSlider *m_seekSlider;
+    SeekBar *m_seekSlider;
+    QToolButton *m_chapterButton;
     QLabel *m_positionLabel;
     QLabel *m_durationLabel;
     QToolButton *m_muteButton;
@@ -101,4 +121,8 @@ private:
 
     bool m_seekSliderDragging = false;
     qint64 m_durationSeconds = 0;
+
+    QString m_itemId;
+    QString m_mediaSourceId;
+    QString m_playSessionId;
 };

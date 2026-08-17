@@ -20,4 +20,6 @@ exec clang++ -std=c++17 -fsyntax-only -fPIC \
     -I "$qtlib/QtNetwork.framework/Headers" \
     -I "$qtlib/QtConcurrent.framework/Headers" \
     -I "$qtlib/QtTest.framework/Headers" \
+    -I "$qtlib/QtOpenGL.framework/Headers" \
+    -I "$qtlib/QtOpenGLWidgets.framework/Headers" \
     "$@"
