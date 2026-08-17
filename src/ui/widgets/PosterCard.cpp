@@ -2,12 +2,15 @@
 
 #include "AsyncImage.h"
 
+#include <QAccessible>
+#include <QAccessibleWidget>
 #include <QContextMenuEvent>
 #include <QEasingCurve>
 #include <QEnterEvent>
 #include <QFocusEvent>
 #include <QFontMetrics>
 #include <QKeyEvent>
+#include <QMetaMethod>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
@@ -21,6 +24,62 @@ constexpr int kProgressStripHeight = 3;
 constexpr int kWatchedDotSize = 16;
 constexpr int kWatchedDotMargin = 4;
 constexpr int kTextGap = 2;
+
+#ifndef QT_NO_ACCESSIBILITY
+// Setting accessibleName() on a PosterCard is necessary but *not sufficient*:
+// Qt hands a plain QWidget subclass the generic QAccessible::Client role, and
+// the macOS Cocoa bridge treats such an element as "ignored", so the card
+// never appears in the accessibility tree at all -- verified by dumping the
+// tree of the running app, where a full screen of posters contributed zero
+// elements. Publishing an interface with a Button role is what actually makes
+// the cards reachable by VoiceOver and by UI automation.
+class PosterCardAccessible : public QAccessibleWidget
+{
+public:
+    explicit PosterCardAccessible(QWidget *widget)
+        : QAccessibleWidget(widget, QAccessible::Button)
+    {
+    }
+
+    QString text(QAccessible::Text type) const override
+    {
+        const auto *card = qobject_cast<const PosterCard *>(object());
+        if (card) {
+            switch (type) {
+            case QAccessible::Name:
+                return card->accessibleName();
+            case QAccessible::Description:
+                return card->accessibleDescription();
+            default:
+                break;
+            }
+        }
+        return QAccessibleWidget::text(type);
+    }
+
+    QStringList actionNames() const override
+    {
+        return QStringList{QAccessibleActionInterface::pressAction()} + QAccessibleWidget::actionNames();
+    }
+
+    void doAction(const QString &actionName) override
+    {
+        if (actionName == QAccessibleActionInterface::pressAction()) {
+            if (auto *card = qobject_cast<PosterCard *>(object()))
+                card->activate();
+            return;
+        }
+        QAccessibleWidget::doAction(actionName);
+    }
+};
+
+QAccessibleInterface *posterCardAccessibleFactory(const QString &className, QObject *object)
+{
+    if (className == QLatin1String("PosterCard") && object && object->isWidgetType())
+        return new PosterCardAccessible(static_cast<QWidget *>(object));
+    return nullptr;
+}
+#endif // QT_NO_ACCESSIBILITY
 } // namespace
 
 PosterCard::PosterCard(QWidget *parent)
@@ -29,6 +88,17 @@ PosterCard::PosterCard(QWidget *parent)
     , m_hoverAnimation(new QVariantAnimation(this))
 {
     setFocusPolicy(Qt::StrongFocus);
+
+#ifndef QT_NO_ACCESSIBILITY
+    // Installed once for the process on the first card built. A factory is
+    // per-application state, not per-widget, and installing it repeatedly
+    // would just prepend duplicates to the factory chain.
+    static const bool accessibilityFactoryInstalled = [] {
+        QAccessible::installFactory(&posterCardAccessibleFactory);
+        return true;
+    }();
+    Q_UNUSED(accessibilityFactoryInstalled);
+#endif
 
     // m_image is never shown through Qt's own child-widget compositing.
     // PosterCard needs full control over paint order so the progress strip,
@@ -113,8 +183,14 @@ void PosterCard::setItem(const MediaItem &item, Shape shape)
         : 0.0;
     m_played = item.userData.played;
 
+    updateAccessibility();
     applyFixedSize();
     update();
+}
+
+void PosterCard::activate()
+{
+    emit activated(m_item);
 }
 
 void PosterCard::loadImage()
@@ -131,12 +207,14 @@ void PosterCard::releaseImage()
 void PosterCard::setTitleText(const QString &title)
 {
     m_title = title;
+    updateAccessibility();
     update();
 }
 
 void PosterCard::setSubtitleText(const QString &subtitle)
 {
     m_subtitle = subtitle;
+    updateAccessibility();
     update();
 }
 
@@ -195,6 +273,31 @@ void PosterCard::relayoutChildren()
     // only (see paintEvent()), so this never fights the "don't animate
     // geometry" rule.
     m_image->setGeometry(artworkRect());
+}
+
+void PosterCard::updateAccessibility()
+{
+    // PosterCard paints its own title/subtitle -- there is no QLabel behind
+    // them for the platform to expose, so this is the entire fix for
+    // FEATURES.md §C6's "QAccessible names on custom widgets": an empty
+    // accessibleName is what makes the macOS accessibility bridge treat a
+    // generic-role QWidget as ignored, i.e. invisible to VoiceOver/the
+    // Accessibility Inspector even though it is perfectly Tab-focusable.
+    setAccessibleName(m_title);
+
+    QStringList description;
+    if (!m_subtitle.isEmpty())
+        description << m_subtitle;
+    if (m_played)
+        description << QStringLiteral("Watched");
+    else if (m_progressFraction > 0.0)
+        description << QStringLiteral("%1% watched").arg(qRound(m_progressFraction * 100));
+    setAccessibleDescription(description.join(QStringLiteral(" · ")));
+
+    // The title is elided at paint time with nothing behind it to fall back
+    // on, so a tooltip is the only place a full title that doesn't fit is
+    // ever recoverable.
+    setToolTip(m_title);
 }
 
 void PosterCard::animateHoverTo(qreal target)
@@ -320,7 +423,7 @@ void PosterCard::mousePressEvent(QMouseEvent *event)
 void PosterCard::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && rect().contains(event->pos())) {
-        emit activated(m_item);
+        activate();
         event->accept();
         return;
     }
@@ -333,9 +436,34 @@ void PosterCard::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Return:
     case Qt::Key_Enter:
     case Qt::Key_Space:
-        emit activated(m_item);
+        activate();
         event->accept();
         return;
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Home:
+    case Qt::Key_End: {
+        // Only MediaRow connects to focusStepRequested() -- a standalone
+        // card (PosterGrid's pool) has no listener, so isSignalConnected()
+        // lets these keys fall straight through to the default handling
+        // below exactly as they did before this feature existed, instead of
+        // being silently swallowed for a widget nobody wired up navigation
+        // for.
+        static const QMetaMethod signal = QMetaMethod::fromSignal(&PosterCard::focusStepRequested);
+        if (isSignalConnected(signal)) {
+            FocusDirection direction = FocusDirection::Next;
+            if (event->key() == Qt::Key_Left)
+                direction = FocusDirection::Previous;
+            else if (event->key() == Qt::Key_Home)
+                direction = FocusDirection::First;
+            else if (event->key() == Qt::Key_End)
+                direction = FocusDirection::Last;
+            emit focusStepRequested(direction);
+            event->accept();
+            return;
+        }
+        break;
+    }
     default:
         break;
     }

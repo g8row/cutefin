@@ -10,6 +10,7 @@ class DetailPage;
 class HomePage;
 class ImageCache;
 class JellyfinClient;
+class LibraryPage;
 class LoginPage;
 class NetworkQueue;
 class PlayerWindow;
@@ -39,7 +40,13 @@ public:
 public slots:
     void navigateTo(QWidget *page, bool pushHistory = true);
     void goBack();
+    // Routes an activated item to whatever page can show it: a library view
+    // opens the grid, a person opens their filmography, everything else opens
+    // the detail page.
+    void showItem(const MediaItem &item);
     void showDetail(const MediaItem &item);
+    void showLibrary(const MediaItem &view);
+    void showPerson(const MediaItem &person);
     // `resume` starts from item.userData.playbackPositionTicks.
     void playItem(const MediaItem &item, bool resume);
     void logout();
@@ -64,6 +71,7 @@ private:
     LoginPage *m_loginPage;
     HomePage *m_homePage;
     DetailPage *m_detailPage;
+    LibraryPage *m_libraryPage;
 
     QList<QWidget *> m_history;
     QPointer<PlayerWindow> m_player;

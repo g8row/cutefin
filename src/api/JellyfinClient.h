@@ -60,6 +60,59 @@ public:
     using ItemCallback = std::function<void(bool ok, const MediaItem &item, const QString &error)>;
     void fetchItem(const QString &itemId, QObject *context, const ItemCallback &callback);
 
+    // --- Paged / sorted / filtered browse (library grid) ---
+    // Everything the library page varies, in one value type so callers can
+    // hold "the current query", mutate one field and refetch.
+    struct ItemQuery {
+        QString parentId;                // library view id; empty searches everywhere
+        QStringList includeItemTypes;    // "Movie", "Series", "Episode", "BoxSet"...
+        QString sortBy = QStringLiteral("SortName");
+        bool ascending = true;
+
+        QStringList genres;
+        QStringList officialRatings;
+        QList<int> years;
+        QString personId;                // filmography view
+        QString searchTerm;
+        QString nameStartsWith;
+
+        // Tri-state: unset means "don't filter on played at all".
+        enum class Played { Any, PlayedOnly, UnplayedOnly };
+        Played played = Played::Any;
+        bool favoritesOnly = false;
+
+        int startIndex = 0;
+        int limit = 100;
+    };
+
+    struct ItemPage {
+        QList<MediaItem> items;
+        int totalRecordCount = 0;
+        int startIndex = 0;
+    };
+
+    using ItemPageCallback = std::function<void(bool ok, const ItemPage &page, const QString &error)>;
+    void fetchItems(const ItemQuery &query, QObject *context, const ItemPageCallback &callback);
+
+    // Exposed for unit testing: builds the /Items path + query string for a
+    // query without performing any I/O.
+    QString buildItemsPath(const ItemQuery &query) const;
+
+    // The set of values a library's filter controls should offer.
+    struct LibraryFilters {
+        QStringList genres;
+        QStringList officialRatings;
+        QList<int> years;
+    };
+
+    using FiltersCallback = std::function<void(bool ok, const LibraryFilters &filters, const QString &error)>;
+    // NB: uses /Items/Filters, not /Items/Filters2. On 10.11.8 Filters2
+    // returns only Genres and Tags, while the older endpoint is the only one
+    // that also reports OfficialRatings and Years -- which the filter UI needs.
+    void fetchLibraryFilters(const QString &parentId, const QStringList &includeItemTypes, QObject *context,
+                              const FiltersCallback &callback);
+    static LibraryFilters parseLibraryFilters(const QJsonObject &obj);
+
     // --- User item state ---
     // Jellyfin models these as set/unset on one path: POST marks, DELETE
     // clears. Both verified to return 200 on 10.11.8. Callers normally update

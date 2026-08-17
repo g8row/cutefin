@@ -55,6 +55,11 @@ private:
     void updateChevrons();
     void layoutChevrons();
     void scrollByPage(int direction);
+    // MediaRow is the thing that owns card ordering, so it -- not
+    // PosterCard, which stays usable standalone in PosterGrid -- is what
+    // turns Left/Right/Home/End into a focus change plus a scroll-into-view.
+    void handleCardFocusStep(PosterCard *card, PosterCard::FocusDirection direction);
+    void scrollCardIntoView(PosterCard *card);
 
     QLabel *m_titleLabel;
     SmoothScrollArea *m_scrollArea;

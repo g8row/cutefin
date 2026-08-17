@@ -14,6 +14,8 @@ target_sources(cutefin PRIVATE
     HomePage.cpp
     DetailPage.h
     DetailPage.cpp
+    LibraryPage.h
+    LibraryPage.cpp
     widgets/SmoothScrollArea.h
     widgets/SmoothScrollArea.cpp
     widgets/AsyncImage.h
@@ -22,4 +24,6 @@ target_sources(cutefin PRIVATE
     widgets/PosterCard.cpp
     widgets/MediaRow.h
     widgets/MediaRow.cpp
+    widgets/PosterGrid.h
+    widgets/PosterGrid.cpp
 )

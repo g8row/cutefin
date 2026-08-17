@@ -8,6 +8,8 @@
 #include <QSysInfo>
 #include <QUrlQuery>
 
+#include <algorithm>
+
 namespace {
 constexpr const char *kClientName = "cutefin";
 }
@@ -289,6 +291,116 @@ void JellyfinClient::fetchItem(const QString &itemId, QObject *context, const It
                 }
                 if (callback)
                     callback(true, MediaItem::fromJson(doc.object()), QString());
+            });
+}
+
+QString JellyfinClient::buildItemsPath(const ItemQuery &query) const
+{
+    QUrlQuery q;
+    q.addQueryItem(QStringLiteral("userId"), m_userId);
+    q.addQueryItem(QStringLiteral("recursive"), QStringLiteral("true"));
+    q.addQueryItem(QStringLiteral("startIndex"), QString::number(query.startIndex));
+    q.addQueryItem(QStringLiteral("limit"), QString::number(query.limit));
+    q.addQueryItem(QStringLiteral("sortBy"), query.sortBy);
+    q.addQueryItem(QStringLiteral("sortOrder"),
+                   query.ascending ? QStringLiteral("Ascending") : QStringLiteral("Descending"));
+
+    if (!query.parentId.isEmpty())
+        q.addQueryItem(QStringLiteral("parentId"), query.parentId);
+    if (!query.includeItemTypes.isEmpty())
+        q.addQueryItem(QStringLiteral("includeItemTypes"), query.includeItemTypes.join(QLatin1Char(',')));
+
+    // Jellyfin expects these multi-valued filters pipe-separated in a single
+    // parameter, not repeated -- repeating them silently keeps only the last.
+    if (!query.genres.isEmpty())
+        q.addQueryItem(QStringLiteral("genres"), query.genres.join(QLatin1Char('|')));
+    if (!query.officialRatings.isEmpty())
+        q.addQueryItem(QStringLiteral("officialRatings"), query.officialRatings.join(QLatin1Char('|')));
+    if (!query.years.isEmpty()) {
+        QStringList years;
+        years.reserve(query.years.size());
+        for (int year : query.years)
+            years << QString::number(year);
+        q.addQueryItem(QStringLiteral("years"), years.join(QLatin1Char(',')));
+    }
+
+    if (!query.personId.isEmpty())
+        q.addQueryItem(QStringLiteral("personIds"), query.personId);
+    if (!query.searchTerm.isEmpty())
+        q.addQueryItem(QStringLiteral("searchTerm"), query.searchTerm);
+    if (!query.nameStartsWith.isEmpty())
+        q.addQueryItem(QStringLiteral("nameStartsWith"), query.nameStartsWith);
+
+    if (query.played != ItemQuery::Played::Any) {
+        q.addQueryItem(QStringLiteral("isPlayed"), query.played == ItemQuery::Played::PlayedOnly
+                                                       ? QStringLiteral("true")
+                                                       : QStringLiteral("false"));
+    }
+    if (query.favoritesOnly)
+        q.addQueryItem(QStringLiteral("isFavorite"), QStringLiteral("true"));
+
+    return QStringLiteral("/Items?%1").arg(q.toString(QUrl::FullyEncoded));
+}
+
+void JellyfinClient::fetchItems(const ItemQuery &query, QObject *context, const ItemPageCallback &callback)
+{
+    const int startIndex = query.startIndex;
+    getJson(buildItemsPath(query), NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
+            [callback, startIndex](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, ItemPage(), error);
+                    return;
+                }
+                ItemPage page;
+                page.startIndex = startIndex;
+                page.items = parseItemList(doc);
+                // A bare-array response (some endpoints) has no count of its
+                // own; the page we just parsed is all there is.
+                page.totalRecordCount = doc.isObject()
+                    ? doc.object().value(QStringLiteral("TotalRecordCount")).toInt(page.items.size())
+                    : page.items.size();
+                if (callback)
+                    callback(true, page, QString());
+            });
+}
+
+JellyfinClient::LibraryFilters JellyfinClient::parseLibraryFilters(const QJsonObject &obj)
+{
+    LibraryFilters filters;
+    for (const QJsonValue &v : obj.value(QStringLiteral("Genres")).toArray())
+        filters.genres << v.toString();
+    for (const QJsonValue &v : obj.value(QStringLiteral("OfficialRatings")).toArray())
+        filters.officialRatings << v.toString();
+    for (const QJsonValue &v : obj.value(QStringLiteral("Years")).toArray())
+        filters.years << v.toInt();
+
+    filters.genres.removeAll(QString());
+    filters.officialRatings.removeAll(QString());
+    std::sort(filters.years.begin(), filters.years.end(), std::greater<int>());
+    return filters;
+}
+
+void JellyfinClient::fetchLibraryFilters(const QString &parentId, const QStringList &includeItemTypes,
+                                          QObject *context, const FiltersCallback &callback)
+{
+    QUrlQuery q;
+    q.addQueryItem(QStringLiteral("userId"), m_userId);
+    if (!parentId.isEmpty())
+        q.addQueryItem(QStringLiteral("parentId"), parentId);
+    if (!includeItemTypes.isEmpty())
+        q.addQueryItem(QStringLiteral("includeItemTypes"), includeItemTypes.join(QLatin1Char(',')));
+
+    getJson(QStringLiteral("/Items/Filters?%1").arg(q.toString(QUrl::FullyEncoded)),
+            NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, LibraryFilters(), error);
+                    return;
+                }
+                if (callback)
+                    callback(true, parseLibraryFilters(doc.object()), QString());
             });
 }
 

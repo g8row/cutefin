@@ -13,6 +13,7 @@ cutefin_add_test(tst_models)
 cutefin_add_test(tst_blurhash)
 cutefin_add_test(tst_settings)
 cutefin_add_test(tst_playbackresolver)
+cutefin_add_test(tst_itemquery)
 
 # tst_live is intentionally not added here yet: it exercises a real server
 # from CUTEFIN_TEST_SERVER/USER/PASS env vars and is out of scope for this

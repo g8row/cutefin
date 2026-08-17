@@ -36,7 +36,7 @@ native widgets, and mpv driven directly rather than through a JS bridge.
 | Remote control registration | `POST /Sessions/Capabilities/Full` | ✅ 204 |
 | Active sessions | `/Sessions` | ✅ |
 | SyncPlay | `/SyncPlay/List` | ✅ (deferred, see phase 5) |
-| Library filters | `/Items/Filters2?parentId=…` | ✅ genres, ratings, years |
+| Library filters | `/Items/Filters?parentId=…` | ✅ genres, tags, official ratings, years. **Not `Filters2`** — on 10.11.8 that returns only `Genres` and `Tags`, so the ratings/years filter controls have to come from the older endpoint. |
 | Paged/sorted browse | `/Items?parentId=…&sortBy=…&startIndex=…&limit=…` | ✅ `TotalRecordCount: 303` movies |
 | Genres / Persons | `/Genres`, `/Persons` | ✅ |
 
@@ -48,8 +48,7 @@ native widgets, and mpv driven directly rather than through a JS bridge.
 
 - **Home** — Continue Watching, Next Up, Latest per library, plus a "My Media" row of
   library tiles. Rows that resolve empty remove themselves.
-- **Library page** *(phase 2c — not yet built; clicking a "My Media" tile is
-  currently a no-op)* — poster grid over `/Items` with:
+- **Library page** — poster grid over `/Items` with:
   - sort: name, date added, date played, release date, community rating, runtime, random
   - filter: genre, year, official rating, played/unplayed, favourites (from `Filters2`)
   - view modes: poster / thumb / detail-list
@@ -190,7 +189,7 @@ preferences window):
 | 1 | Build system, core, API, tests | done |
 | 2a | mpv player core | done |
 | 2b | UI shell, home, detail, search | done |
-| 2c | Library page (paged grid, sort/filter), person pages, collections | next |
+| 2c | Library page (paged grid, sort/filter), person pages, collections | done |
 | 3 | Player advanced: tracks, subs, chapters, trickplay, segments, next-up, stats overlay | |
 | 4 | Settings, WebSocket remote control, Quick Connect, MPRIS/media keys, multi-server | |
 | 5 | README, packaging (AppImage/Flatpak, .app bundle), live test target, polish | |

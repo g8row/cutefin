@@ -29,6 +29,17 @@ public:
         Thumb,
     };
 
+    // Left/Right/Home/End step focus to the previous/next/first/last card.
+    // PosterCard has no notion of an ordering of its own -- only whoever owns
+    // that ordering (MediaRow) connects to focusStepRequested(), and this
+    // enum is public so that connection can be written without magic ints.
+    enum class FocusDirection {
+        Previous,
+        Next,
+        First,
+        Last,
+    };
+
     explicit PosterCard(QWidget *parent = nullptr);
 
     void setImageCache(ImageCache *cache);
@@ -44,6 +55,11 @@ public:
     // Viewport-lazy loading hooks used by the owning row/grid.
     void loadImage();
     void releaseImage();
+
+    // Fires activated() as if the card had been clicked. Public so the
+    // accessibility "press" action can drive it the same way a mouse or
+    // Return key does, rather than reimplementing the emit.
+    void activate();
 
     // Overrides the automatic title/subtitle derived from the item.
     void setTitleText(const QString &title);
@@ -63,6 +79,12 @@ signals:
     void activated(const MediaItem &item);
     // Right-click / context-menu key. `globalPos` is where to pop the menu.
     void contextMenuRequested(const MediaItem &item, const QPoint &globalPos);
+    // Arrow/Home/End pressed while focused. Only emitted when something is
+    // actually listening (see keyPressEvent()) so a PosterCard sitting in
+    // PosterGrid, which never connects to this, behaves exactly as before --
+    // the key event falls through to QWidget's default handling instead of
+    // being silently swallowed.
+    void focusStepRequested(PosterCard::FocusDirection direction);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -81,6 +103,12 @@ private:
     void applyFixedSize();
     void relayoutChildren();
     QRect artworkRect() const;
+    // Pushes title/subtitle/watched-state into accessibleName/
+    // accessibleDescription and the tooltip. Called once per item
+    // population, never from paintEvent -- FEATURES.md §E's per-frame budget
+    // doesn't apply here, but there is no reason to redo it every repaint
+    // either.
+    void updateAccessibility();
 
     MediaItem m_item;
     Shape m_shape = Shape::Poster;

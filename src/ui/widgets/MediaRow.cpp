@@ -109,6 +109,8 @@ void MediaRow::setItems(const QList<MediaItem> &items, PosterCard::Shape shape)
         card->setItem(item, m_shape);
         connect(card, &PosterCard::activated, this, &MediaRow::itemActivated);
         connect(card, &PosterCard::contextMenuRequested, this, &MediaRow::itemContextMenuRequested);
+        connect(card, &PosterCard::focusStepRequested, this,
+                [this, card](PosterCard::FocusDirection direction) { handleCardFocusStep(card, direction); });
         stripLayout->addWidget(card);
         m_cards.append(card);
     }
@@ -249,6 +251,55 @@ void MediaRow::scrollByPage(int direction)
 {
     const int page = qMax(1, static_cast<int>(m_scrollArea->viewport()->width() * 0.9));
     m_scrollArea->scrollByPixels(direction * page, 0);
+}
+
+void MediaRow::handleCardFocusStep(PosterCard *card, PosterCard::FocusDirection direction)
+{
+    const int index = m_cards.indexOf(card);
+    if (index < 0)
+        return;
+
+    int target = index;
+    switch (direction) {
+    case PosterCard::FocusDirection::Previous:
+        target = qMax(0, index - 1);
+        break;
+    case PosterCard::FocusDirection::Next:
+        target = qMin(m_cards.size() - 1, index + 1);
+        break;
+    case PosterCard::FocusDirection::First:
+        target = 0;
+        break;
+    case PosterCard::FocusDirection::Last:
+        target = m_cards.size() - 1;
+        break;
+    }
+
+    PosterCard *targetCard = m_cards.at(target);
+    targetCard->setFocus(Qt::TabFocusReason);
+    scrollCardIntoView(targetCard);
+}
+
+void MediaRow::scrollCardIntoView(PosterCard *card)
+{
+    // Ease toward the card via SmoothScrollArea's own accumulate-and-ease
+    // machinery (DESIGN.md §5) rather than snapping the scrollbar value --
+    // Home/End on a long row can cover a lot of ground in one keypress, and
+    // an instant jump there would be exactly the "stepped feel" the smooth
+    // scroll area exists to avoid.
+    const int viewportWidth = m_scrollArea->viewport()->width();
+    const int scrollX = m_scrollArea->horizontalScrollBar()->value();
+    const int cardLeft = card->x();
+    const int cardRight = cardLeft + card->width();
+
+    int delta = 0;
+    if (cardLeft < scrollX)
+        delta = cardLeft - scrollX;
+    else if (cardRight > scrollX + viewportWidth)
+        delta = cardRight - (scrollX + viewportWidth);
+
+    if (delta != 0)
+        m_scrollArea->scrollByPixels(delta, 0);
 }
 
 void MediaRow::resizeEvent(QResizeEvent *event)

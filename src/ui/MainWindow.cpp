@@ -2,6 +2,7 @@
 
 #include "DetailPage.h"
 #include "HomePage.h"
+#include "LibraryPage.h"
 #include "LoginPage.h"
 #include "ServerSelectPage.h"
 #include "api/JellyfinClient.h"
@@ -66,11 +67,13 @@ void MainWindow::buildPages()
     m_loginPage = new LoginPage(m_client, m_settings, this);
     m_homePage = new HomePage(m_client, m_imageCache, this);
     m_detailPage = new DetailPage(m_client, m_imageCache, this);
+    m_libraryPage = new LibraryPage(m_client, m_imageCache, this);
 
     m_stack->addWidget(m_serverSelectPage);
     m_stack->addWidget(m_loginPage);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_detailPage);
+    m_stack->addWidget(m_libraryPage);
 
     connect(m_serverSelectPage, &ServerSelectPage::serverAccepted, this, [this](const ServerInfo &info) {
         m_loginPage->setServer(info);
@@ -92,13 +95,17 @@ void MainWindow::buildPages()
         enterHome();
     });
 
-    connect(m_homePage, &HomePage::itemActivated, this, &MainWindow::showDetail);
+    connect(m_homePage, &HomePage::itemActivated, this, &MainWindow::showItem);
     connect(m_homePage, &HomePage::itemContextMenuRequested, this, &MainWindow::showItemContextMenu);
     connect(m_homePage, &HomePage::logoutRequested, this, &MainWindow::logout);
 
-    connect(m_detailPage, &DetailPage::itemActivated, this, &MainWindow::showDetail);
+    connect(m_detailPage, &DetailPage::itemActivated, this, &MainWindow::showItem);
     connect(m_detailPage, &DetailPage::backRequested, this, &MainWindow::goBack);
     connect(m_detailPage, &DetailPage::playRequested, this, &MainWindow::playItem);
+
+    connect(m_libraryPage, &LibraryPage::itemActivated, this, &MainWindow::showItem);
+    connect(m_libraryPage, &LibraryPage::itemContextMenuRequested, this, &MainWindow::showItemContextMenu);
+    connect(m_libraryPage, &LibraryPage::backRequested, this, &MainWindow::goBack);
 }
 
 void MainWindow::start()
@@ -196,17 +203,42 @@ void MainWindow::goBack()
     navigateTo(previous, false);
 }
 
-void MainWindow::showDetail(const MediaItem &item)
+void MainWindow::showItem(const MediaItem &item)
 {
-    // Library views and people don't have a detail page yet; browsing into a
-    // library and a person filmography land with LibraryPage/PersonPage.
-    if (item.type == QStringLiteral("CollectionFolder") || item.type == QStringLiteral("UserView")
-        || item.type == QStringLiteral("Person")) {
+    if (item.type == QStringLiteral("CollectionFolder") || item.type == QStringLiteral("UserView")) {
+        showLibrary(item);
         return;
     }
+    if (item.type == QStringLiteral("Person")) {
+        showPerson(item);
+        return;
+    }
+    showDetail(item);
+}
 
+void MainWindow::showDetail(const MediaItem &item)
+{
     m_detailPage->setItem(item);
     navigateTo(m_detailPage);
+}
+
+void MainWindow::showLibrary(const MediaItem &view)
+{
+    m_libraryPage->showLibrary(view);
+    navigateTo(m_libraryPage);
+}
+
+void MainWindow::showPerson(const MediaItem &person)
+{
+    JellyfinClient::ItemQuery query;
+    query.personId = person.id;
+    query.includeItemTypes = {QStringLiteral("Movie"), QStringLiteral("Series")};
+    // A filmography reads best newest-first; alphabetical buries recent work.
+    query.sortBy = QStringLiteral("PremiereDate");
+    query.ascending = false;
+
+    m_libraryPage->showQuery(person.name, query);
+    navigateTo(m_libraryPage);
 }
 
 void MainWindow::playItem(const MediaItem &item, bool resume)
