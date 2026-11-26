@@ -9,4 +9,6 @@ target_sources(cutefin_core PRIVATE
     BlurHash.cpp
     Formatting.h
     Formatting.cpp
+    TrackSelection.h
+    TrackSelection.cpp
 )

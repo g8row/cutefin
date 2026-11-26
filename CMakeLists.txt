@@ -10,52 +10,115 @@ set(CMAKE_AUTORCC ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Gui Concurrent Test)
+find_package(Qt6 REQUIRED COMPONENTS
+    Core
+    Gui
+    Network
+    Concurrent
+    Qml
+    Quick
+    QuickControls2
+    OpenGL
+    Svg
+    Test
+)
 
-option(CUTEFIN_ENABLE_MPV "Build the libmpv-backed player" ON)
+qt_standard_project_setup(REQUIRES 6.5)
+qt_policy(SET QTP0004 NEW)
+
+option(CUTEFIN_ENABLE_MPV "Build the libmpv-backed embedded player" ON)
 if(CUTEFIN_ENABLE_MPV)
     find_package(MPV)
-    # QOpenGLWidget (MpvWidget's base class) lives in Qt6::OpenGLWidgets, a
-    # separate module from Widgets since Qt 6 -- DESIGN.md §2's component
-    # list predates the player and doesn't mention it.
-    find_package(Qt6 QUIET COMPONENTS OpenGLWidgets)
-    if(NOT MPV_FOUND OR NOT Qt6OpenGLWidgets_FOUND)
-        message(WARNING "libmpv and/or Qt6::OpenGLWidgets not found; "
-                         "continuing without player support. Set CUTEFIN_ENABLE_MPV=OFF "
-                         "to silence this warning.")
+    if(NOT MPV_FOUND)
+        message(WARNING "libmpv not found; continuing without embedded mpv playback. "
+                        "Set CUTEFIN_ENABLE_MPV=OFF to silence this warning.")
         set(CUTEFIN_ENABLE_MPV OFF)
     endif()
 endif()
 
 # ---------------------------------------------------------------------------
-# cutefin_core: everything in src/core (Settings, NetworkQueue, ImageCache,
-# BlurHash, Formatting) and src/api (Models, JellyfinClient). This is the
-# library later phases (ui/, player/) link against and unit-test independently
-# of the GUI. Each subdirectory appends its own sources via target_sources()
-# so parallel agents editing core/ and api/ never touch this file.
+# cutefin_core: headless C++17 core (Settings, NetworkQueue, ImageCache,
+# BlurHash, Formatting, TrackSelection, Models, JellyfinClient,
+# PlaybackNavigation). Zero Qt6::Widgets dependency.
 # ---------------------------------------------------------------------------
 add_library(cutefin_core STATIC)
 target_include_directories(cutefin_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(cutefin_core PUBLIC Qt6::Widgets Qt6::Network Qt6::Gui Qt6::Concurrent)
+target_link_libraries(cutefin_core PUBLIC Qt6::Core Qt6::Gui Qt6::Network Qt6::Concurrent)
 
 add_subdirectory(src/core)
 add_subdirectory(src/api)
 
 # ---------------------------------------------------------------------------
-# cutefin executable. src/main.cpp lives here; src/ui and src/player append
-# their own sources via target_sources() in their own CMakeLists.txt as those
-# directories are filled in, so nothing else in this file needs to change.
+# cutefin executable: Qt 6 Quick / QML frontend + embedded libmpv player
 # ---------------------------------------------------------------------------
-add_executable(cutefin src/main.cpp)
-target_link_libraries(cutefin PRIVATE cutefin_core Qt6::Widgets Qt6::Network Qt6::Gui)
+qt_add_executable(cutefin src/main.cpp)
 
-add_subdirectory(src/ui)
+target_link_libraries(cutefin PRIVATE
+    cutefin_core
+    Qt6::Qml
+    Qt6::Quick
+    Qt6::QuickControls2
+    Qt6::OpenGL
+    Qt6::Svg
+)
+
+add_subdirectory(src/app)
+add_subdirectory(src/player)
 
 if(CUTEFIN_ENABLE_MPV)
-    add_subdirectory(src/player)
-    target_link_libraries(cutefin PRIVATE MPV::MPV Qt6::OpenGLWidgets)
+    target_link_libraries(cutefin PRIVATE MPV::MPV)
     target_compile_definitions(cutefin PRIVATE CUTEFIN_ENABLE_MPV)
 endif()
+
+if(APPLE)
+    target_link_libraries(cutefin PRIVATE "-framework IOKit")
+elseif(UNIX)
+    find_package(Qt6 QUIET COMPONENTS DBus)
+    if(Qt6DBus_FOUND)
+        target_link_libraries(cutefin PRIVATE Qt6::DBus)
+        target_compile_definitions(cutefin PRIVATE CUTEFIN_HAVE_DBUS)
+    endif()
+endif()
+
+set_source_files_properties(qml/theme/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
+file(GLOB CUTEFIN_ICON_RESOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS "qml/icons/*.svg")
+
+qt_add_qml_module(cutefin
+    URI Cutefin
+    VERSION 1.0
+    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml/Cutefin"
+    RESOURCE_PREFIX /qt/qml
+    QML_FILES
+        qml/Main.qml
+        qml/theme/Theme.qml
+        qml/components/AppIcon.qml
+        qml/components/AppButton.qml
+        qml/components/AppTextField.qml
+        qml/components/BadgePill.qml
+        qml/components/EmptyState.qml
+        qml/components/PosterCard.qml
+        qml/components/LandscapeCard.qml
+        qml/components/HeroBanner.qml
+        qml/components/MediaRow.qml
+        qml/components/SidebarNav.qml
+        qml/components/TopBar.qml
+        qml/components/ToastHost.qml
+        qml/pages/ServerSelectPage.qml
+        qml/pages/LoginPage.qml
+        qml/pages/HomePage.qml
+        qml/pages/LibraryPage.qml
+        qml/pages/DetailPage.qml
+        qml/pages/SearchPage.qml
+        qml/pages/SettingsPage.qml
+        qml/player/PlayerView.qml
+        qml/player/PlayerSeekBar.qml
+        qml/player/PlayerDrawer.qml
+        qml/player/StatsOverlay.qml
+        qml/player/SkipAndUpNextOverlay.qml
+    RESOURCES
+        ${CUTEFIN_ICON_RESOURCES}
+)
 
 enable_testing()
 add_subdirectory(tests)

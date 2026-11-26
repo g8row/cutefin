@@ -1,14 +1,12 @@
 target_sources(cutefin PRIVATE
-    MpvWidget.h
-    MpvWidget.cpp
-    PlayerWindow.h
-    PlayerWindow.cpp
+    MpvVideoItem.h
+    MpvVideoItem.cpp
+    PlayerController.h
+    PlayerController.cpp
     PlaybackReporter.h
     PlaybackReporter.cpp
     TrickplayCache.h
     TrickplayCache.cpp
-    SeekBar.h
-    SeekBar.cpp
-    StatsOverlay.h
-    StatsOverlay.cpp
+    SleepInhibitor.h
+    SleepInhibitor.cpp
 )

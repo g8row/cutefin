@@ -3,4 +3,6 @@ target_sources(cutefin_core PRIVATE
     Models.cpp
     JellyfinClient.h
     JellyfinClient.cpp
+    PlaybackNavigation.h
+    PlaybackNavigation.cpp
 )

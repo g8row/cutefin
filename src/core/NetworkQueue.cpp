@@ -22,7 +22,8 @@ QNetworkAccessManager *NetworkQueue::networkAccessManager() const
 }
 
 void NetworkQueue::get(const QNetworkRequest &request, Priority priority, QObject *context,
-                        const std::function<void(QNetworkReply *)> &callback)
+                        const std::function<void(QNetworkReply *)> &callback, const CancelToken &cancelToken,
+                        const std::function<void()> &onDispatch)
 {
     QueuedRequest qr;
     qr.request = request;
@@ -30,6 +31,8 @@ void NetworkQueue::get(const QNetworkRequest &request, Priority priority, QObjec
     qr.hasContext = context != nullptr;
     qr.context = context;
     qr.callback = callback;
+    qr.cancelToken = cancelToken;
+    qr.onDispatch = onDispatch;
     enqueue(std::move(qr), priority);
 }
 
@@ -60,33 +63,40 @@ void NetworkQueue::deleteResource(const QNetworkRequest &request, Priority prior
 
 void NetworkQueue::enqueue(QueuedRequest request, Priority priority)
 {
-    QNetworkRequest req = request.request;
-    req.setAttribute(QNetworkRequest::Http2AllowedAttribute, true);
-    request.request = req;
+    request.priority = priority;
+    request.request.setAttribute(QNetworkRequest::Http2AllowedAttribute, true);
 
     if (priority == Priority::Metadata)
-        m_metadataQueue.enqueue(std::move(request));
+        m_metadataQueue.append(std::move(request));
     else
-        m_imageQueue.enqueue(std::move(request));
+        m_imageQueue.append(std::move(request));
 
     scheduleDispatch();
 }
 
-bool NetworkQueue::isContextAlive(const QueuedRequest &request)
+bool NetworkQueue::isWanted(const QueuedRequest &request)
 {
-    return !request.hasContext || !request.context.isNull();
+    if (request.hasContext && request.context.isNull())
+        return false;
+    return !request.cancelToken || !request.cancelToken->load();
 }
 
 bool NetworkQueue::takeNext(QueuedRequest *out)
 {
-    for (QQueue<QueuedRequest> *queue : {&m_metadataQueue, &m_imageQueue}) {
-        while (!queue->isEmpty()) {
-            QueuedRequest qr = queue->dequeue();
-            if (!isContextAlive(qr))
-                continue; // dropped: the requesting widget is already gone.
-            *out = std::move(qr);
-            return true;
-        }
+    // Unwanted entries (requester gone, or cancelled) are dropped unsent.
+    while (!m_metadataQueue.isEmpty()) {
+        QueuedRequest qr = m_metadataQueue.takeFirst();
+        if (!isWanted(qr))
+            continue;
+        *out = std::move(qr);
+        return true;
+    }
+    while (!m_imageQueue.isEmpty()) {
+        QueuedRequest qr = m_imageQueue.takeLast();
+        if (!isWanted(qr))
+            continue;
+        *out = std::move(qr);
+        return true;
     }
     return false;
 }
@@ -103,16 +113,23 @@ void NetworkQueue::scheduleDispatch()
 
 void NetworkQueue::dispatch(const QueuedRequest &request)
 {
+    QNetworkRequest req = request.request;
+    if (request.priority == Priority::Image) {
+        // Keeps image traffic out of QNetworkDiskCache, which would store a
+        // second copy and run its expiry scans on this (the GUI) thread.
+        req.setAttribute(QNetworkRequest::CacheSaveControlAttribute, false);
+        req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
+    }
+
     QNetworkReply *reply = nullptr;
     if (request.verb == "POST") {
-        QNetworkRequest req = request.request;
         if (!req.header(QNetworkRequest::ContentTypeHeader).isValid())
             req.setHeader(QNetworkRequest::ContentTypeHeader, QByteArrayLiteral("application/json"));
         reply = m_networkAccessManager->post(req, request.body);
     } else if (request.verb == "DELETE") {
-        reply = m_networkAccessManager->deleteResource(request.request);
+        reply = m_networkAccessManager->deleteResource(req);
     } else {
-        reply = m_networkAccessManager->get(request.request);
+        reply = m_networkAccessManager->get(req);
     }
 
     ++m_activeCount;
@@ -131,9 +148,17 @@ void NetworkQueue::dispatch(const QueuedRequest &request)
     }
 
     QObject *receiver = request.hasContext ? request.context.data() : this;
+    const bool hasContext = request.hasContext;
+    const QPointer<QObject> guard = request.context;
     const std::function<void(QNetworkReply *)> callback = request.callback;
-    connect(reply, &QNetworkReply::finished, receiver, [callback, reply]() {
+    connect(reply, &QNetworkReply::finished, receiver, [hasContext, guard, callback, reply]() {
+        // abort() above finishes the reply while the context is mid-destruction.
+        if (hasContext && guard.isNull())
+            return;
         if (callback)
             callback(reply);
     });
+
+    if (request.onDispatch)
+        request.onDispatch();
 }

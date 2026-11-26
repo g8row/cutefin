@@ -14,7 +14,18 @@ cutefin_add_test(tst_blurhash)
 cutefin_add_test(tst_settings)
 cutefin_add_test(tst_playbackresolver)
 cutefin_add_test(tst_itemquery)
+cutefin_add_test(tst_playbacknavigation)
+cutefin_add_test(tst_trackselection)
 
-# tst_live is intentionally not added here yet: it exercises a real server
-# from CUTEFIN_TEST_SERVER/USER/PASS env vars and is out of scope for this
-# phase (DESIGN.md §9).
+cutefin_add_test(tst_qmlmodels)
+target_sources(tst_qmlmodels PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/app/MediaItemModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/app/HomeSectionModel.cpp)
+
+# Opt-in live integration test: only runs when invoked with `ctest -L live`
+# and CUTEFIN_TEST_SERVER/USER/PASS env vars set.
+add_executable(tst_live tst_live.cpp)
+target_link_libraries(tst_live PRIVATE cutefin_core Qt6::Test)
+target_include_directories(tst_live PRIVATE ${CMAKE_SOURCE_DIR}/src)
+add_test(NAME tst_live COMMAND tst_live)
+set_tests_properties(tst_live PROPERTIES LABELS "live")

@@ -211,6 +211,71 @@ void JellyfinClient::login(const QString &username, const QString &password, QOb
              });
 }
 
+void JellyfinClient::initiateQuickConnect(QObject *context, const QuickConnectInitCallback &callback)
+{
+    getJson(QStringLiteral("/QuickConnect/Initiate"), NetworkQueue::Priority::Metadata, AuthMode::Anonymous, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, QString(), QString(), error);
+                    return;
+                }
+                const QJsonObject obj = doc.object();
+                const QString secret = obj.value(QStringLiteral("Secret")).toString();
+                const QString code = obj.value(QStringLiteral("Code")).toString();
+                const bool valid = !secret.isEmpty() && !code.isEmpty();
+                if (callback)
+                    callback(valid, secret, code, valid ? QString() : QStringLiteral("Quick Connect unavailable"));
+            });
+}
+
+void JellyfinClient::pollQuickConnect(const QString &secret, QObject *context, const QuickConnectPollCallback &callback)
+{
+    QUrlQuery q;
+    q.addQueryItem(QStringLiteral("secret"), secret);
+    getJson(QStringLiteral("/QuickConnect/Connect?%1").arg(q.toString(QUrl::FullyEncoded)),
+            NetworkQueue::Priority::Metadata, AuthMode::Anonymous, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                if (!ok) {
+                    if (callback)
+                        callback(false, false, error);
+                    return;
+                }
+                const bool authed = doc.object().value(QStringLiteral("Authenticated")).toBool();
+                if (callback)
+                    callback(true, authed, QString());
+            });
+}
+
+void JellyfinClient::authenticateWithQuickConnect(const QString &secret, QObject *context,
+                                                  const LoginCallback &callback)
+{
+    QJsonObject body;
+    body[QStringLiteral("Secret")] = secret;
+
+    postJson(QStringLiteral("/Users/AuthenticateWithQuickConnect"), body, NetworkQueue::Priority::Metadata,
+             AuthMode::Anonymous, context,
+             [this, callback](bool ok, const QJsonDocument &doc, const QString &error) {
+                 if (!ok) {
+                     if (callback)
+                         callback(false, UserSession(), error);
+                     return;
+                 }
+                 const QJsonObject obj = doc.object();
+                 UserSession session;
+                 session.serverUrl = m_serverUrl;
+                 session.token = obj.value(QStringLiteral("AccessToken")).toString();
+                 session.deviceId = m_deviceId;
+                 const QJsonObject user = obj.value(QStringLiteral("User")).toObject();
+                 session.userId = user.value(QStringLiteral("Id")).toString();
+                 session.userName = user.value(QStringLiteral("Name")).toString();
+                 if (callback) {
+                     callback(session.isValid(), session,
+                              session.isValid() ? QString() : QStringLiteral("Malformed Quick Connect login response"));
+                 }
+             });
+}
+
 void JellyfinClient::logout(QObject *context, const std::function<void()> &callback)
 {
     postJson(QStringLiteral("/Sessions/Logout"), QJsonObject(), NetworkQueue::Priority::Metadata, AuthMode::Authorized,
@@ -241,19 +306,22 @@ void JellyfinClient::fetchUserViews(QObject *context, const ItemListCallback &ca
 
 void JellyfinClient::fetchResumeItems(QObject *context, const ItemListCallback &callback)
 {
-    fetchItemList(QStringLiteral("/UserItems/Resume?limit=16&mediaTypes=Video&userId=%1").arg(m_userId), context,
-                  callback);
+    fetchItemList(QStringLiteral("/UserItems/Resume?limit=16&mediaTypes=Video&fields=Overview,MediaSources&userId=%1")
+                      .arg(m_userId),
+                  context, callback);
 }
 
 void JellyfinClient::fetchNextUp(QObject *context, const ItemListCallback &callback)
 {
-    fetchItemList(QStringLiteral("/Shows/NextUp?userId=%1&limit=16").arg(m_userId), context, callback);
+    fetchItemList(QStringLiteral("/Shows/NextUp?userId=%1&limit=16&fields=Overview,MediaSources").arg(m_userId),
+                  context, callback);
 }
 
 void JellyfinClient::fetchLatestItems(const QString &parentId, QObject *context, const ItemListCallback &callback)
 {
-    fetchItemList(QStringLiteral("/Items/Latest?parentId=%1&limit=16&userId=%2").arg(parentId, m_userId), context,
-                  callback);
+    fetchItemList(QStringLiteral("/Items/Latest?parentId=%1&limit=16&fields=Overview,Genres&userId=%2")
+                      .arg(parentId, m_userId),
+                  context, callback);
 }
 
 void JellyfinClient::fetchSeasons(const QString &seriesId, QObject *context, const ItemListCallback &callback)
@@ -264,26 +332,28 @@ void JellyfinClient::fetchSeasons(const QString &seriesId, QObject *context, con
 void JellyfinClient::fetchEpisodes(const QString &seriesId, const QString &seasonId, QObject *context,
                                     const ItemListCallback &callback)
 {
-    fetchItemList(QStringLiteral("/Shows/%1/Episodes?seasonId=%2&userId=%3").arg(seriesId, seasonId, m_userId),
+    fetchItemList(QStringLiteral("/Shows/%1/Episodes?seasonId=%2&fields=Overview,MediaSources&userId=%3")
+                      .arg(seriesId, seasonId, m_userId),
                   context, callback);
 }
 
 void JellyfinClient::searchItems(const QString &query, QObject *context, const ItemListCallback &callback)
 {
-    QUrl url;
     QUrlQuery q;
     q.addQueryItem(QStringLiteral("userId"), m_userId);
     q.addQueryItem(QStringLiteral("searchTerm"), query);
     q.addQueryItem(QStringLiteral("recursive"), QStringLiteral("true"));
-    q.addQueryItem(QStringLiteral("includeItemTypes"), QStringLiteral("Movie,Series,Episode"));
-    q.addQueryItem(QStringLiteral("limit"), QStringLiteral("40"));
+    q.addQueryItem(QStringLiteral("includeItemTypes"), QStringLiteral("Movie,Series,Episode,Person"));
+    q.addQueryItem(QStringLiteral("limit"), QStringLiteral("48"));
     fetchItemList(QStringLiteral("/Items?%1").arg(q.toString(QUrl::FullyEncoded)), context, callback);
 }
 
 void JellyfinClient::fetchItem(const QString &itemId, QObject *context, const ItemCallback &callback)
 {
-    getJson(QStringLiteral("/Items/%1?userId=%2").arg(itemId, m_userId), NetworkQueue::Priority::Metadata,
-            AuthMode::Authorized, context, [callback](bool ok, const QJsonDocument &doc, const QString &error) {
+    getJson(QStringLiteral("/Items/%1?userId=%2&fields=Overview,Genres,People,Studios,Taglines,MediaSources,MediaStreams")
+                .arg(itemId, m_userId),
+            NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
+            [callback](bool ok, const QJsonDocument &doc, const QString &error) {
                 if (!ok) {
                     if (callback)
                         callback(false, MediaItem(), error);
@@ -530,8 +600,9 @@ QUrl JellyfinClient::imageUrl(const QString &itemId, const QString &type, const 
     return url;
 }
 
-QJsonObject JellyfinClient::deviceProfile()
+QJsonObject JellyfinClient::deviceProfile(qint64 maxBitrateBps)
 {
+    const qint64 bitrate = maxBitrateBps > 0 ? maxBitrateBps : 800000000LL;
     // Permissive profile: mpv/ffmpeg is the real decoder, so we advertise
     // wide container/codec support to make the server pick direct play
     // whenever possible instead of transcoding.
@@ -543,12 +614,20 @@ QJsonObject JellyfinClient::deviceProfile()
     directPlay[QStringLiteral("AudioCodec")] =
         QStringLiteral("aac,ac3,eac3,dts,truehd,flac,opus,mp3,vorbis,pcm,alac");
 
+    QJsonObject transcodeProfile;
+    transcodeProfile[QStringLiteral("Container")] = QStringLiteral("ts");
+    transcodeProfile[QStringLiteral("Type")] = QStringLiteral("Video");
+    transcodeProfile[QStringLiteral("VideoCodec")] = QStringLiteral("h264");
+    transcodeProfile[QStringLiteral("AudioCodec")] = QStringLiteral("aac,ac3,opus");
+    transcodeProfile[QStringLiteral("Protocol")] = QStringLiteral("hls");
+    transcodeProfile[QStringLiteral("Context")] = QStringLiteral("Streaming");
+
     QJsonObject profile;
-    profile[QStringLiteral("MaxStreamingBitrate")] = 800000000;
-    profile[QStringLiteral("MaxStaticBitrate")] = 800000000;
+    profile[QStringLiteral("MaxStreamingBitrate")] = bitrate;
+    profile[QStringLiteral("MaxStaticBitrate")] = bitrate;
     profile[QStringLiteral("MusicStreamingTranscodingBitrate")] = 384000;
     profile[QStringLiteral("DirectPlayProfiles")] = QJsonArray{directPlay};
-    profile[QStringLiteral("TranscodingProfiles")] = QJsonArray{};
+    profile[QStringLiteral("TranscodingProfiles")] = QJsonArray{transcodeProfile};
     profile[QStringLiteral("CodecProfiles")] = QJsonArray{};
     profile[QStringLiteral("SubtitleProfiles")] = QJsonArray{
         QJsonObject{{QStringLiteral("Format"), QStringLiteral("srt")}, {QStringLiteral("Method"), QStringLiteral("External")}},
@@ -560,15 +639,24 @@ QJsonObject JellyfinClient::deviceProfile()
 
 void JellyfinClient::getPlaybackInfo(const QString &itemId, QObject *context, const PlaybackInfoCallback &callback)
 {
+    getPlaybackInfo(itemId, 0, false, context, callback);
+}
+
+void JellyfinClient::getPlaybackInfo(const QString &itemId, qint64 maxBitrateBps, bool forceTranscode, QObject *context,
+                                     const PlaybackInfoCallback &callback)
+{
     QJsonObject body;
-    body[QStringLiteral("DeviceProfile")] = deviceProfile();
-    body[QStringLiteral("EnableDirectPlay")] = true;
-    body[QStringLiteral("EnableDirectStream")] = true;
+    body[QStringLiteral("DeviceProfile")] = deviceProfile(maxBitrateBps);
+    body[QStringLiteral("EnableDirectPlay")] = !forceTranscode;
+    body[QStringLiteral("EnableDirectStream")] = !forceTranscode;
+    body[QStringLiteral("EnableTranscoding")] = true;
     body[QStringLiteral("AutoOpenLiveStream")] = true;
+    if (maxBitrateBps > 0)
+        body[QStringLiteral("MaxStreamingBitrate")] = maxBitrateBps;
 
     const QString path = QStringLiteral("/Items/%1/PlaybackInfo?userId=%2").arg(itemId, m_userId);
     postJson(path, body, NetworkQueue::Priority::Metadata, AuthMode::Authorized, context,
-             [this, itemId, callback](bool ok, const QJsonDocument &doc, const QString &error) {
+             [this, callback](bool ok, const QJsonDocument &doc, const QString &error) {
                  if (!ok) {
                      if (callback)
                          callback(PlaybackResolution(), error);
@@ -581,7 +669,13 @@ void JellyfinClient::getPlaybackInfo(const QString &itemId, QObject *context, co
                  for (const QJsonValue &v : sourcesArray)
                      sources.append(MediaSource::fromJson(v.toObject()));
 
-                 const PlaybackResolution resolution = resolvePlayback(playSessionId, sources, m_serverUrl, m_accessToken);
+                 PlaybackResolution resolution = resolvePlayback(playSessionId, sources, m_serverUrl, m_accessToken);
+                 if (resolution.ok && resolution.isTranscoding) {
+                     const QUrlQuery q(resolution.url);
+                     const QString reasons = q.queryItemValue(QStringLiteral("TranscodeReasons"));
+                     if (!reasons.isEmpty())
+                         resolution.transcodeReasons = reasons.split(QLatin1Char(','), Qt::SkipEmptyParts);
+                 }
                  if (callback)
                      callback(resolution, resolution.ok ? QString() : QStringLiteral("No playable media source"));
              });
@@ -608,6 +702,9 @@ JellyfinClient::PlaybackResolution JellyfinClient::resolvePlayback(const QString
             resolution.mediaSourceId = source.id;
             resolution.url = url;
             resolution.isTranscoding = false;
+            resolution.container = source.container;
+            resolution.size = source.size;
+            resolution.bitRate = source.bitRate;
             return resolution;
         }
     }
@@ -620,6 +717,9 @@ JellyfinClient::PlaybackResolution JellyfinClient::resolvePlayback(const QString
             resolution.mediaSourceId = source.id;
             resolution.url = QUrl(serverUrl + source.transcodingUrl);
             resolution.isTranscoding = true;
+            resolution.container = source.container;
+            resolution.size = source.size;
+            resolution.bitRate = source.bitRate;
             return resolution;
         }
     }

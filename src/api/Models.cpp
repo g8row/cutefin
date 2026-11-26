@@ -101,6 +101,8 @@ MediaItem MediaItem::fromJson(const QJsonObject &obj)
         item.imageTags.insert(it.key(), it.value().toString());
 
     item.backdropTags = toStringList(obj.value(QStringLiteral("BackdropImageTags")).toArray());
+    item.parentBackdropItemId = obj.value(QStringLiteral("ParentBackdropItemId")).toString();
+    item.parentBackdropTags = toStringList(obj.value(QStringLiteral("ParentBackdropImageTags")).toArray());
 
     const QJsonObject blurHashes = obj.value(QStringLiteral("ImageBlurHashes")).toObject();
     for (auto typeIt = blurHashes.constBegin(); typeIt != blurHashes.constEnd(); ++typeIt) {
@@ -140,6 +142,9 @@ MediaItem MediaItem::fromJson(const QJsonObject &obj)
         if (!byWidth.isEmpty())
             item.trickplay.insert(sourceIt.key(), byWidth);
     }
+
+    for (const QJsonValue &v : obj.value(QStringLiteral("MediaSources")).toArray())
+        item.mediaSources.append(MediaSource::fromJson(v.toObject()));
 
     return item;
 }
@@ -200,6 +205,12 @@ MediaStream MediaStream::fromJson(const QJsonObject &obj)
     stream.index = optionalInt(obj, QStringLiteral("Index"), -1);
     stream.isDefault = obj.value(QStringLiteral("IsDefault")).toBool();
     stream.isExternal = obj.value(QStringLiteral("IsExternal")).toBool();
+    stream.width = optionalInt(obj, QStringLiteral("Width"), 0);
+    stream.height = optionalInt(obj, QStringLiteral("Height"), 0);
+    stream.channels = optionalInt(obj, QStringLiteral("Channels"), 0);
+    stream.channelLayout = obj.value(QStringLiteral("ChannelLayout")).toString();
+    stream.bitRate = static_cast<qint64>(obj.value(QStringLiteral("BitRate")).toDouble());
+    stream.videoRange = obj.value(QStringLiteral("VideoRange")).toString();
     return stream;
 }
 
@@ -211,6 +222,8 @@ MediaSource MediaSource::fromJson(const QJsonObject &obj)
     source.supportsDirectPlay = obj.value(QStringLiteral("SupportsDirectPlay")).toBool();
     source.supportsDirectStream = obj.value(QStringLiteral("SupportsDirectStream")).toBool();
     source.transcodingUrl = obj.value(QStringLiteral("TranscodingUrl")).toString();
+    source.size = static_cast<qint64>(obj.value(QStringLiteral("Size")).toDouble());
+    source.bitRate = static_cast<qint64>(obj.value(QStringLiteral("Bitrate")).toDouble());
 
     const QJsonArray streams = obj.value(QStringLiteral("MediaStreams")).toArray();
     for (const QJsonValue &v : streams)

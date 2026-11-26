@@ -45,6 +45,17 @@ public:
     using LoginCallback = std::function<void(bool ok, const UserSession &session, const QString &error)>;
     void login(const QString &username, const QString &password, QObject *context, const LoginCallback &callback);
 
+    // Quick Connect (verified on Jellyfin 10.11.8: GET /QuickConnect/Initiate,
+    // GET /QuickConnect/Connect?secret=..., POST /Users/AuthenticateWithQuickConnect).
+    using QuickConnectInitCallback =
+        std::function<void(bool ok, const QString &secret, const QString &code, const QString &error)>;
+    void initiateQuickConnect(QObject *context, const QuickConnectInitCallback &callback);
+
+    using QuickConnectPollCallback = std::function<void(bool ok, bool authenticated, const QString &error)>;
+    void pollQuickConnect(const QString &secret, QObject *context, const QuickConnectPollCallback &callback);
+
+    void authenticateWithQuickConnect(const QString &secret, QObject *context, const LoginCallback &callback);
+
     void logout(QObject *context, const std::function<void()> &callback = {});
 
     // --- Library ---
@@ -167,10 +178,16 @@ public:
         QString mediaSourceId;
         QUrl url;
         bool isTranscoding = false;
+        QString container;
+        qint64 size = 0;
+        qint64 bitRate = 0;
+        QStringList transcodeReasons;
     };
 
     using PlaybackInfoCallback = std::function<void(const PlaybackResolution &resolution, const QString &error)>;
     void getPlaybackInfo(const QString &itemId, QObject *context, const PlaybackInfoCallback &callback);
+    void getPlaybackInfo(const QString &itemId, qint64 maxBitrateBps, bool forceTranscode, QObject *context,
+                         const PlaybackInfoCallback &callback);
 
     // Pure decision logic, exposed for unit testing without a network round
     // trip: pick the first source that can direct-play/direct-stream, else
@@ -212,7 +229,7 @@ private:
 
     void fetchItemList(const QString &path, QObject *context, const ItemListCallback &callback);
 
-    static QJsonObject deviceProfile();
+    static QJsonObject deviceProfile(qint64 maxBitrateBps = 800000000);
 
     NetworkQueue *m_networkQueue;
     QString m_serverUrl;

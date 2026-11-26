@@ -98,6 +98,37 @@ struct MediaSegment {
     static MediaSegment fromJson(const QJsonObject &obj);
 };
 
+struct MediaStream {
+    QString type; // "Video", "Audio", "Subtitle"
+    QString codec;
+    QString language;
+    QString displayTitle;
+    int index = -1;
+    bool isDefault = false;
+    bool isExternal = false;
+    int width = 0;
+    int height = 0;
+    int channels = 0;
+    QString channelLayout;
+    qint64 bitRate = 0;
+    QString videoRange;
+
+    static MediaStream fromJson(const QJsonObject &obj);
+};
+
+struct MediaSource {
+    QString id;
+    QString container;
+    bool supportsDirectPlay = false;
+    bool supportsDirectStream = false;
+    QString transcodingUrl;
+    qint64 size = 0;
+    qint64 bitRate = 0;
+    QList<MediaStream> streams;
+
+    static MediaSource fromJson(const QJsonObject &obj);
+};
+
 // The workhorse type: movies, series, seasons, episodes, and library views
 // (UserViews) all come back through this one shape.
 struct MediaItem {
@@ -119,6 +150,8 @@ struct MediaItem {
     // Keyed by image type ("Primary", "Thumb", "Logo", ...) -> tag.
     QHash<QString, QString> imageTags;
     QStringList backdropTags;
+    QString parentBackdropItemId;
+    QStringList parentBackdropTags;
     // Keyed by image type -> (tag -> blurhash).
     QHash<QString, QHash<QString, QString>> blurHashes;
 
@@ -137,6 +170,7 @@ struct MediaItem {
     // mediaSourceId -> (tile width -> info). The width key is what goes in
     // the /Videos/{id}/Trickplay/{width}/{index}.jpg path.
     QHash<QString, QHash<int, TrickplayInfo>> trickplay;
+    QList<MediaSource> mediaSources;
 
     static MediaItem fromJson(const QJsonObject &obj);
 };
@@ -145,26 +179,3 @@ struct MediaItem {
 // a bare JSON array (e.g. /Items/Latest) and the usual {"Items":[...]}
 // envelope (almost everything else).
 QList<MediaItem> parseItemList(const QJsonDocument &doc);
-
-struct MediaStream {
-    QString type; // "Video", "Audio", "Subtitle"
-    QString codec;
-    QString language;
-    QString displayTitle;
-    int index = -1;
-    bool isDefault = false;
-    bool isExternal = false;
-
-    static MediaStream fromJson(const QJsonObject &obj);
-};
-
-struct MediaSource {
-    QString id;
-    QString container;
-    bool supportsDirectPlay = false;
-    bool supportsDirectStream = false;
-    QString transcodingUrl;
-    QList<MediaStream> streams;
-
-    static MediaSource fromJson(const QJsonObject &obj);
-};

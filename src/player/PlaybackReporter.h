@@ -4,44 +4,43 @@
 #include <QString>
 
 class JellyfinClient;
-class MpvWidget;
+class MpvVideoItem;
 class QTimer;
 
 // Owns the /Sessions/Playing* lifecycle for one playback session, driven off
-// MpvWidget signals (DESIGN.md §7). Reports:
-//   - Sessions/Playing once, when start() is called
-//   - Sessions/Playing/Progress every 10s, and immediately on pause/seek
-//   - Sessions/Playing/Stopped once, when stop() is called (or a new
-//     session starts, or the reporter is destroyed) with the exact last
-//     known position -- this is what makes "Continue Watching" correct.
+// MpvVideoItem signals. Reports Playing on start, Progress every 10s + on
+// pause/seek, and Stopped on stop/destruction with the exact last position.
 class PlaybackReporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit PlaybackReporter(JellyfinClient *client, MpvWidget *player, QObject *parent = nullptr);
+    explicit PlaybackReporter(JellyfinClient *client, QObject *parent = nullptr);
     ~PlaybackReporter() override;
 
-    // startPositionTicks is the resume position playback was started at, so
-    // the very first progress report is accurate even before any time-pos
-    // update has arrived from mpv.
+    void attachPlayer(MpvVideoItem *player);
+
     void start(const QString &itemId, const QString &playSessionId, const QString &mediaSourceId,
                qint64 startPositionTicks = 0);
-
-    // Sends a final Stopped report (if a session is active) and detaches.
-    // Safe to call when nothing is active, and safe to call more than once.
-    void stop();
+    // Sends Stopped for the active session (no-op if none). Returns true when
+    // a Stopped report was actually sent.
+    bool stop();
 
     bool isActive() const { return m_active; }
 
+signals:
+    // Emitted right after a POST /Sessions/Playing/Stopped was handed to the
+    // network layer, so the owner can wait for it before the app quits.
+    void stoppedReportSent();
+
 private slots:
-    void onPositionChanged(qint64 seconds);
-    void onPausedChanged(bool paused);
+    void onPositionChanged();
+    void onPausedChanged();
     void onSeeked();
     void reportProgress();
 
 private:
     JellyfinClient *m_client;
-    MpvWidget *m_player;
+    MpvVideoItem *m_player = nullptr;
     QTimer *m_progressTimer;
 
     bool m_active = false;

@@ -1,90 +1,149 @@
 #include "player/TrickplayCache.h"
 
 #include "api/JellyfinClient.h"
+#include "core/NetworkQueue.h"
 
-#include <QNetworkAccessManager>
+#include <QMetaObject>
+#include <QMutexLocker>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPointer>
+#include <QThread>
 
 namespace {
 
-// TrickplayCache.h is fixed by contract and only carries a JellyfinClient*,
-// not a NetworkQueue* -- and JellyfinClient deliberately has no "fetch raw
-// bytes" method (see task brief; that file is owned elsewhere). trickplayTileUrl()
-// already bakes `api_key` into the query string the way every other
-// unauthenticated-header Jellyfin media URL does, so a plain manager needs no
-// Authorization header to work. One instance shared by every TrickplayCache
-// (there is only ever one alive per player) keeps HTTP/2 connections warm
-// between sheet fetches, matching the "one QNAM for the app" spirit of
-// NetworkQueue/ImageCache without requiring access to either.
-QNetworkAccessManager *sharedNetworkManager()
+bool sameInfo(const TrickplayInfo &a, const TrickplayInfo &b)
 {
-    static auto *manager = new QNetworkAccessManager();
-    return manager;
+    return a.width == b.width && a.height == b.height && a.tileWidth == b.tileWidth && a.tileHeight == b.tileHeight
+        && a.intervalMs == b.intervalMs && a.thumbnailCount == b.thumbnailCount;
+}
+
+// Index maths per Models.h's TrickplayInfo comment.
+QRect cropRectFor(const TrickplayInfo &info, int thumbnailIndex)
+{
+    const int row = (thumbnailIndex / info.tileWidth) % info.tileHeight;
+    const int col = thumbnailIndex % info.tileWidth;
+    return QRect(col * info.width, row * info.height, info.width, info.height);
 }
 
 } // namespace
 
-TrickplayCache::TrickplayCache(JellyfinClient *client, QObject *parent)
+TrickplayCache::TrickplayCache(JellyfinClient *client, NetworkQueue *networkQueue, QObject *parent)
     : QObject(parent)
     , m_client(client)
+    , m_networkQueue(networkQueue)
 {
+    // One low-priority decoder thread: a sheet is a single ~800 KB JPEG and
+    // this must never compete with playback on a dual-core machine.
+    m_decodePool.setMaxThreadCount(1);
+    m_decodePool.setThreadPriority(QThread::LowPriority);
+}
+
+TrickplayCache::~TrickplayCache()
+{
+    // Decode tasks capture `this`; make sure none is running or pending
+    // before members go away. Already-posted completion callbacks are
+    // dropped by ~QObject.
+    m_decodePool.clear();
+    m_decodePool.waitForDone();
 }
 
 void TrickplayCache::setSource(const QString &itemId, const TrickplayInfo &info)
 {
-    if (m_itemId == itemId && m_info.width == info.width && m_info.height == info.height
-        && m_info.tileWidth == info.tileWidth && m_info.tileHeight == info.tileHeight
-        && m_info.intervalMs == info.intervalMs && m_info.thumbnailCount == info.thumbnailCount)
-        return;
+    {
+        QMutexLocker locker(&m_mutex);
+        if (m_itemId == itemId && sameInfo(m_info, info))
+            return;
+    }
 
     clear();
+
+    QMutexLocker locker(&m_mutex);
     m_itemId = itemId;
     m_info = info;
 }
 
-QPixmap TrickplayCache::thumbnailAt(qint64 positionMs)
+void TrickplayCache::setDualCoreMode(bool enabled)
 {
-    if (!isEnabled() || positionMs < 0)
-        return QPixmap();
+    QMutexLocker locker(&m_mutex);
+    m_maxSheets = enabled ? kDualCoreMaxSheets : kDefaultMaxSheets;
+    evictIfNeededLocked();
+}
+
+int TrickplayCache::maxSheets() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_maxSheets;
+}
+
+bool TrickplayCache::isEnabled() const
+{
+    QMutexLocker locker(&m_mutex);
+    return !m_itemId.isEmpty() && m_info.isValid();
+}
+
+TrickplayInfo TrickplayCache::info() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_info;
+}
+
+QImage TrickplayCache::thumbnailIfCached(qint64 positionMs) const
+{
+    QMutexLocker locker(&m_mutex);
+    if (m_itemId.isEmpty() || !m_info.isValid() || positionMs < 0)
+        return QImage();
 
     const int index = thumbnailIndexFor(positionMs);
-    if (index < 0 || index >= m_info.thumbnailCount)
-        return QPixmap();
+    if (index < 0 || (m_info.thumbnailCount > 0 && index >= m_info.thumbnailCount))
+        return QImage();
 
-    const int sheet = sheetIndexFor(positionMs);
+    const auto it = m_sheets.constFind(sheetIndexFor(positionMs));
+    if (it == m_sheets.constEnd())
+        return QImage();
+    return it->copy(cropRectFor(m_info, index));
+}
 
-    const auto it = m_sheets.constFind(sheet);
-    if (it == m_sheets.constEnd()) {
-        requestSheet(sheet, positionMs);
-        return QPixmap();
+QImage TrickplayCache::thumbnailAt(qint64 positionMs)
+{
+    int sheet = -1;
+    {
+        QMutexLocker locker(&m_mutex);
+        if (m_itemId.isEmpty() || !m_info.isValid() || positionMs < 0)
+            return QImage();
+
+        const int index = thumbnailIndexFor(positionMs);
+        if (index < 0 || (m_info.thumbnailCount > 0 && index >= m_info.thumbnailCount))
+            return QImage();
+
+        sheet = sheetIndexFor(positionMs);
+        const auto it = m_sheets.constFind(sheet);
+        if (it != m_sheets.constEnd()) {
+            touchLocked(sheet);
+            return it->copy(cropRectFor(m_info, index));
+        }
     }
 
-    touch(sheet);
-
-    // Index maths per Models.h's TrickplayInfo comment (verified against the
-    // live "Us" trickplay data: ms=1'234'000, intervalMs=10'000 -> index 123,
-    // sheet 1, row (123/10)%10=2, column 123%10=3).
-    const int row = (index / m_info.tileWidth) % m_info.tileHeight;
-    const int col = index % m_info.tileWidth;
-    const QRect cropRect(col * m_info.width, row * m_info.height, m_info.width, m_info.height);
-    return it->copy(cropRect);
+    requestSheet(sheet, positionMs);
+    return QImage();
 }
 
 void TrickplayCache::clear()
 {
+    QMutexLocker locker(&m_mutex);
     m_sheets.clear();
     m_lru.clear();
-    // Replies already in flight are left to run to completion -- their
-    // this-bound lambda re-checks m_itemId and discards the result if
-    // setSource()/clear() has since moved the cache to a different item, so
-    // nothing stale ever lands in m_sheets.
+    // Replies/decodes still in flight re-check the item id when they land
+    // and discard themselves once the cache has moved on.
     m_inFlight.clear();
+    m_itemId.clear();
+    m_info = TrickplayInfo();
 }
 
+// Both helpers below expect m_mutex to be held by the caller.
 int TrickplayCache::thumbnailIndexFor(qint64 positionMs) const
 {
-    if (!isEnabled())
+    if (!m_info.isValid() || positionMs < 0)
         return -1;
     return static_cast<int>(positionMs / m_info.intervalMs);
 }
@@ -92,64 +151,86 @@ int TrickplayCache::thumbnailIndexFor(qint64 positionMs) const
 int TrickplayCache::sheetIndexFor(qint64 positionMs) const
 {
     const int index = thumbnailIndexFor(positionMs);
-    if (index < 0)
+    if (index < 0 || m_info.thumbnailsPerSheet() <= 0)
         return -1;
     return index / m_info.thumbnailsPerSheet();
 }
 
 void TrickplayCache::requestSheet(int sheetIndex, qint64 positionMs)
 {
-    if (!m_client || sheetIndex < 0)
-        return;
-    // The most important performance detail here: dragging back and forth
-    // across a sheet boundary must not re-fire the same ~800KB request every
-    // time thumbnailAt() misses the cache.
-    if (m_inFlight.contains(sheetIndex))
+    if (!m_client || !m_networkQueue || sheetIndex < 0)
         return;
 
-    m_inFlight.append(sheetIndex);
-
-    // The "tileWidth" JellyfinClient::trickplayTileUrl() wants is the
-    // thumbnail pixel width (info.width, e.g. 320) -- it is the key the
-    // server's /Videos/{id}/Trickplay/{width}/{index}.jpg path is keyed by,
-    // as MediaItem::trickplay's comment spells out. TrickplayInfo::tileWidth
-    // (e.g. 10) is the grid column count and plays no part in the URL.
-    const QUrl url = m_client->trickplayTileUrl(m_itemId, m_info.width, sheetIndex);
-    QNetworkReply *reply = sharedNetworkManager()->get(QNetworkRequest(url));
-
-    const QString requestedItemId = m_itemId;
-    connect(reply, &QNetworkReply::finished, this, [this, reply, sheetIndex, positionMs, requestedItemId]() {
-        reply->deleteLater();
-        m_inFlight.removeAll(sheetIndex);
-
-        if (requestedItemId != m_itemId)
-            return; // source changed mid-flight; this sheet no longer means anything
-        if (reply->error() != QNetworkReply::NoError)
+    QString itemId;
+    int thumbnailWidth = 0;
+    {
+        QMutexLocker locker(&m_mutex);
+        // Dragging back and forth across a sheet boundary must not re-fire
+        // the same request on every miss.
+        if (m_inFlight.contains(sheetIndex) || m_sheets.contains(sheetIndex))
             return;
+        m_inFlight.append(sheetIndex);
+        itemId = m_itemId;
+        // The URL is keyed by the thumbnail *pixel* width (info.width), not
+        // the grid column count (info.tileWidth).
+        thumbnailWidth = m_info.width;
+    }
 
-        // One decode per arriving sheet, never per hover -- thumbnailAt()
-        // only ever crops an already-decoded QPixmap.
-        QPixmap pixmap;
-        if (!pixmap.loadFromData(reply->readAll()))
-            return;
+    QNetworkRequest request(m_client->trickplayTileUrl(itemId, thumbnailWidth, sheetIndex));
+    // Sheets live decoded in RAM; keeping the JPEG in the disk cache as well
+    // would just write every tile twice.
+    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
+    request.setAttribute(QNetworkRequest::CacheSaveControlAttribute, false);
 
-        m_sheets.insert(sheetIndex, pixmap);
-        touch(sheetIndex);
-        evictIfNeeded();
+    m_networkQueue->get(
+        request, NetworkQueue::Priority::Image, this, [this, sheetIndex, positionMs, itemId](QNetworkReply *reply) {
+            const bool ok = reply && reply->error() == QNetworkReply::NoError;
+            const QByteArray data = ok ? reply->readAll() : QByteArray();
 
-        emit thumbnailReady(positionMs);
-    });
+            if (!ok || data.isEmpty()) {
+                QMutexLocker locker(&m_mutex);
+                if (m_itemId == itemId)
+                    m_inFlight.removeAll(sheetIndex);
+                return;
+            }
+
+            // Decode off the GUI thread; publish the result back on it.
+            m_decodePool.start([this, sheetIndex, positionMs, itemId, data]() {
+                QImage image = QImage::fromData(data);
+                if (!image.isNull() && image.format() != QImage::Format_RGB32
+                    && image.format() != QImage::Format_ARGB32_Premultiplied)
+                    image = image.convertToFormat(QImage::Format_RGB32);
+
+                QMetaObject::invokeMethod(
+                    this,
+                    [this, sheetIndex, positionMs, itemId, image]() {
+                        {
+                            QMutexLocker locker(&m_mutex);
+                            if (m_itemId != itemId)
+                                return; // source changed mid-flight
+                            m_inFlight.removeAll(sheetIndex);
+                            if (image.isNull())
+                                return;
+                            m_sheets.insert(sheetIndex, image);
+                            touchLocked(sheetIndex);
+                            evictIfNeededLocked();
+                        }
+                        emit thumbnailReady(positionMs);
+                    },
+                    Qt::QueuedConnection);
+            });
+        });
 }
 
-void TrickplayCache::touch(int sheetIndex)
+void TrickplayCache::touchLocked(int sheetIndex)
 {
     m_lru.removeAll(sheetIndex);
     m_lru.append(sheetIndex);
 }
 
-void TrickplayCache::evictIfNeeded()
+void TrickplayCache::evictIfNeededLocked()
 {
-    while (m_sheets.size() > kMaxSheets && !m_lru.isEmpty()) {
+    while (m_sheets.size() > m_maxSheets && !m_lru.isEmpty()) {
         const int oldest = m_lru.takeFirst();
         m_sheets.remove(oldest);
     }

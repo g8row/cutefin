@@ -3,60 +3,69 @@
 #include "api/Models.h"
 
 #include <QHash>
+#include <QImage>
 #include <QList>
+#include <QMutex>
 #include <QObject>
-#include <QPixmap>
+#include <QString>
+#include <QThreadPool>
 
 class JellyfinClient;
+class NetworkQueue;
 
-// Fetches and caches trickplay tile sheets, and crops single thumbnails out
-// of them for the seek bar's hover preview.
-//
-// Each sheet is a ~800KB JPEG holding tileWidth*tileHeight thumbnails, so the
-// cache is deliberately small and bounded: at most kMaxSheets decoded sheets,
-// evicted least-recently-used, and cleared outright on stop (FEATURES.md §E).
-// Holding a whole movie's sheets would be tens of megabytes for a feature the
-// user only sees while dragging.
+// Fetches and caches trickplay tile sheets as thread-safe QImages (decoded off
+// the GUI thread), cropping single thumbnails on demand for TrickplayImageProvider.
+// Bounded to maxSheets() decoded sheets in RAM (a decoded 10x10 sheet of
+// 320px thumbnails is ~33 MB) and cleared outright on stop. Tiles bypass the
+// HTTP disk cache: they are decoded straight into RAM and re-fetched cheaply,
+// so writing every one to disk as well only costs I/O.
 class TrickplayCache : public QObject
 {
     Q_OBJECT
 public:
-    static constexpr int kMaxSheets = 8;
+    static constexpr int kDefaultMaxSheets = 4;
+    static constexpr int kDualCoreMaxSheets = 3;
 
-    explicit TrickplayCache(JellyfinClient *client, QObject *parent = nullptr);
+    explicit TrickplayCache(JellyfinClient *client, NetworkQueue *networkQueue, QObject *parent = nullptr);
+    ~TrickplayCache() override;
 
-    // Selects the item and the tile width to use. Passing an invalid info
-    // disables the cache (isEnabled() false), which is the normal state for
-    // content the server has not generated trickplay for.
     void setSource(const QString &itemId, const TrickplayInfo &info);
-    bool isEnabled() const { return m_info.isValid(); }
-    const TrickplayInfo &info() const { return m_info; }
 
-    // The thumbnail for a position, if its sheet is already decoded. Returns
-    // a null pixmap and starts a fetch otherwise -- callers draw nothing (or
-    // keep the previous frame) until thumbnailReady() fires.
-    QPixmap thumbnailAt(qint64 positionMs);
+    // Dual-core mode keeps one sheet fewer resident.
+    void setDualCoreMode(bool enabled);
+    int maxSheets() const;
+    bool isEnabled() const;
+    TrickplayInfo info() const;
 
-    // Drops every decoded sheet. Call on playback stop.
+    // Thread-safe lookup of an already-decoded thumbnail. Returns null QImage
+    // on miss without starting network work (call prefetchAt() on GUI thread).
+    QImage thumbnailIfCached(qint64 positionMs) const;
+
+    // GUI-thread call: returns cached thumbnail if available, otherwise starts
+    // an async fetch + off-thread decode and emits thumbnailReady() on completion.
+    QImage thumbnailAt(qint64 positionMs);
+
     void clear();
 
 signals:
-    // A sheet arrived; `positionMs` is the position originally asked for, so
-    // a hovering seek bar can re-query and repaint only if still relevant.
     void thumbnailReady(qint64 positionMs);
 
 private:
-    int sheetIndexFor(qint64 positionMs) const;
     int thumbnailIndexFor(qint64 positionMs) const;
+    int sheetIndexFor(qint64 positionMs) const;
     void requestSheet(int sheetIndex, qint64 positionMs);
-    void touch(int sheetIndex);
-    void evictIfNeeded();
+    void touchLocked(int sheetIndex);
+    void evictIfNeededLocked();
 
     JellyfinClient *m_client;
+    NetworkQueue *m_networkQueue;
+
+    mutable QMutex m_mutex;
     QString m_itemId;
     TrickplayInfo m_info;
-
-    QHash<int, QPixmap> m_sheets;
-    QList<int> m_lru;          // most-recently-used last
+    QHash<int, QImage> m_sheets;
+    QList<int> m_lru;
     QList<int> m_inFlight;
+    QThreadPool m_decodePool;
+    int m_maxSheets = kDefaultMaxSheets;
 };
