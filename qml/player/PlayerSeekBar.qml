@@ -88,7 +88,8 @@ Item {
         var sec = ratio * duration
         hoverSeconds = sec
         var ms = Math.max(0, Math.round(sec * 1000))
-        var bucketMs = Math.floor(ms / 1000) * 1000
+        var step = Math.max(1000, player.trickplayIntervalMs || 10000)
+        var bucketMs = Math.floor(ms / step) * step
         hoverMs = bucketMs
         if (dragging)
             dragPosition = sec
@@ -138,7 +139,8 @@ Item {
                     cache: false
                     retainWhileLoading: true
                     smooth: true
-                    source: (previewPopup.visible && player.trickplayEnabled)
+                    source: (previewPopup.visible && player.trickplayEnabled && player.trickplayRevision >= 0
+                             && player.hasTrickplayAt(root.hoverMs))
                         ? ("image://trickplay/" + root.hoverMs + "/" + player.trickplayRevision)
                         : ""
                 }

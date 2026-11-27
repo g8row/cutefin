@@ -283,6 +283,17 @@ bool PlayerController::trickplayEnabled() const
     return m_trickplay->isEnabled();
 }
 
+int PlayerController::trickplayIntervalMs() const
+{
+    const TrickplayInfo info = m_trickplay->info();
+    return info.isValid() ? info.intervalMs : 10000;
+}
+
+bool PlayerController::hasTrickplayAt(qint64 positionMs) const
+{
+    return m_trickplay->hasThumbnailAt(positionMs);
+}
+
 // ---------------------------------------------------------------------------
 // Quality / presentation getters & setters
 // ---------------------------------------------------------------------------

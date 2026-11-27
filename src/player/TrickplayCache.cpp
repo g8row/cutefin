@@ -104,6 +104,19 @@ QImage TrickplayCache::thumbnailIfCached(qint64 positionMs) const
     return it->copy(cropRectFor(m_info, index));
 }
 
+bool TrickplayCache::hasThumbnailAt(qint64 positionMs) const
+{
+    QMutexLocker locker(&m_mutex);
+    if (m_itemId.isEmpty() || !m_info.isValid() || positionMs < 0)
+        return false;
+
+    const int index = thumbnailIndexFor(positionMs);
+    if (index < 0 || (m_info.thumbnailCount > 0 && index >= m_info.thumbnailCount))
+        return false;
+
+    return m_sheets.contains(sheetIndexFor(positionMs));
+}
+
 QImage TrickplayCache::thumbnailAt(qint64 positionMs)
 {
     int sheet = -1;
@@ -136,6 +149,7 @@ void TrickplayCache::clear()
     // Replies/decodes still in flight re-check the item id when they land
     // and discard themselves once the cache has moved on.
     m_inFlight.clear();
+    m_failedSheets.clear();
     m_itemId.clear();
     m_info = TrickplayInfo();
 }
@@ -167,7 +181,7 @@ void TrickplayCache::requestSheet(int sheetIndex, qint64 positionMs)
         QMutexLocker locker(&m_mutex);
         // Dragging back and forth across a sheet boundary must not re-fire
         // the same request on every miss.
-        if (m_inFlight.contains(sheetIndex) || m_sheets.contains(sheetIndex))
+        if (m_inFlight.contains(sheetIndex) || m_sheets.contains(sheetIndex) || m_failedSheets.contains(sheetIndex))
             return;
         m_inFlight.append(sheetIndex);
         itemId = m_itemId;
@@ -176,7 +190,9 @@ void TrickplayCache::requestSheet(int sheetIndex, qint64 positionMs)
         thumbnailWidth = m_info.width;
     }
 
-    QNetworkRequest request(m_client->trickplayTileUrl(itemId, thumbnailWidth, sheetIndex));
+    // Jellyfin 12+ requires the MediaBrowser Authorization header on Trickplay
+    // tile endpoints (query ?api_key= returns 401 Unauthorized).
+    QNetworkRequest request = m_client->authorizedRequest(m_client->trickplayTileUrl(itemId, thumbnailWidth, sheetIndex));
     // Sheets live decoded in RAM; keeping the JPEG in the disk cache as well
     // would just write every tile twice.
     request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
@@ -189,8 +205,12 @@ void TrickplayCache::requestSheet(int sheetIndex, qint64 positionMs)
 
             if (!ok || data.isEmpty()) {
                 QMutexLocker locker(&m_mutex);
-                if (m_itemId == itemId)
+                if (m_itemId == itemId) {
                     m_inFlight.removeAll(sheetIndex);
+                    const int status = reply ? reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() : 0;
+                    if (status == 401 || status == 403 || status == 404)
+                        m_failedSheets.append(sheetIndex);
+                }
                 return;
             }
 

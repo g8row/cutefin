@@ -32,6 +32,7 @@ private slots:
     void favoritesAndPersonAndSearch();
     void parsesFilters();
     void parsesFiltersFromEmptyPayload();
+    void trickplayUsesAuthorizationHeader();
 };
 
 void TestItemQuery::defaultsAreSaneAndPaged()
@@ -166,6 +167,27 @@ void TestItemQuery::parsesFiltersFromEmptyPayload()
     QVERIFY(filters.genres.isEmpty());
     QVERIFY(filters.officialRatings.isEmpty());
     QVERIFY(filters.years.isEmpty());
+}
+
+void TestItemQuery::trickplayUsesAuthorizationHeader()
+{
+    NetworkQueue queue;
+    JellyfinClient client(&queue);
+    UserSession session;
+    session.serverUrl = QStringLiteral("https://example.test");
+    session.userId = QStringLiteral("uid-1");
+    session.token = QStringLiteral("secret-tok");
+    client.setSession(session);
+
+    const QUrl url = client.trickplayTileUrl(QStringLiteral("item-42"), 320, 2);
+    QCOMPARE(url.toString(), QStringLiteral("https://example.test/Videos/item-42/Trickplay/320/2.jpg"));
+    QVERIFY(!url.hasQuery());
+
+    const QNetworkRequest req = client.authorizedRequest(url);
+    QCOMPARE(req.url(), url);
+    const QByteArray auth = req.rawHeader("Authorization");
+    QVERIFY(auth.startsWith("MediaBrowser "));
+    QVERIFY(auth.contains("Token=\"secret-tok\""));
 }
 
 QTEST_MAIN(TestItemQuery)

@@ -40,6 +40,7 @@ public:
     // Thread-safe lookup of an already-decoded thumbnail. Returns null QImage
     // on miss without starting network work (call prefetchAt() on GUI thread).
     QImage thumbnailIfCached(qint64 positionMs) const;
+    bool hasThumbnailAt(qint64 positionMs) const;
 
     // GUI-thread call: returns cached thumbnail if available, otherwise starts
     // an async fetch + off-thread decode and emits thumbnailReady() on completion.
@@ -66,6 +67,7 @@ private:
     QHash<int, QImage> m_sheets;
     QList<int> m_lru;
     QList<int> m_inFlight;
+    QList<int> m_failedSheets;
     QThreadPool m_decodePool;
     int m_maxSheets = kDefaultMaxSheets;
 };

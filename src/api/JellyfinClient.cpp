@@ -421,13 +421,15 @@ void JellyfinClient::fetchMediaSegments(const QString &itemId, QObject *context,
 
 QUrl JellyfinClient::trickplayTileUrl(const QString &itemId, int thumbnailWidth, int sheetIndex) const
 {
-    QUrl url(m_serverUrl
-             + QStringLiteral("/Videos/%1/Trickplay/%2/%3.jpg").arg(itemId).arg(thumbnailWidth).arg(sheetIndex));
-    QUrlQuery query;
-    if (!m_accessToken.isEmpty())
-        query.addQueryItem(QStringLiteral("api_key"), m_accessToken);
-    url.setQuery(query);
-    return url;
+    return QUrl(m_serverUrl
+                + QStringLiteral("/Videos/%1/Trickplay/%2/%3.jpg").arg(itemId).arg(thumbnailWidth).arg(sheetIndex));
+}
+
+QNetworkRequest JellyfinClient::authorizedRequest(const QUrl &url) const
+{
+    QNetworkRequest request(url);
+    request.setRawHeader("Authorization", authorizationHeaderValue(true).toUtf8());
+    return request;
 }
 
 QUrl JellyfinClient::subtitleStreamUrl(const QString &itemId, const QString &mediaSourceId, int streamIndex,

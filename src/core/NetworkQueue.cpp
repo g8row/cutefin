@@ -1,5 +1,6 @@
 #include "NetworkQueue.h"
 
+#include <QBuffer>
 #include <QNetworkAccessManager>
 #include <QNetworkDiskCache>
 #include <QNetworkReply>
@@ -125,7 +126,20 @@ void NetworkQueue::dispatch(const QueuedRequest &request)
     if (request.verb == "POST") {
         if (!req.header(QNetworkRequest::ContentTypeHeader).isValid())
             req.setHeader(QNetworkRequest::ContentTypeHeader, QByteArrayLiteral("application/json"));
-        reply = m_networkAccessManager->post(req, request.body);
+        if (request.body.isEmpty()) {
+            reply = m_networkAccessManager->post(req, QByteArray());
+        } else {
+            // Parent to NetworkQueue (created after m_networkAccessManager) and
+            // defer deletion past QNetworkReply::~QNetworkReply so Qt's HTTP/2
+            // worker thread never sees the upload QIODevice destroyed mid-upload
+            // during aborts or shutdown teardown.
+            auto *buffer = new QBuffer(this);
+            buffer->setData(request.body);
+            buffer->open(QIODevice::ReadOnly);
+            req.setHeader(QNetworkRequest::ContentLengthHeader, request.body.size());
+            reply = m_networkAccessManager->post(req, buffer);
+            connect(reply, &QObject::destroyed, buffer, &QObject::deleteLater);
+        }
     } else if (request.verb == "DELETE") {
         reply = m_networkAccessManager->deleteResource(req);
     } else {

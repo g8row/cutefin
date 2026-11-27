@@ -144,15 +144,16 @@ public:
 
     // One trickplay tile sheet.
     //
-    // `thumbnailWidth` is the *pixel* width of a single thumbnail (320 on the
-    // test server) -- i.e. TrickplayInfo::width, which is also the key of
-    // MediaItem::trickplay's inner hash. It is NOT TrickplayInfo::tileWidth,
-    // which is the number of thumbnail columns per sheet (10). Both are ints
-    // on the same struct, so passing the wrong one compiles fine and quietly
-    // requests a resolution the server never generated.
-    //
-    // `sheetIndex` is thumbnailIndex / (tileWidth * tileHeight).
+    // `thumbnailWidth` is the *pixel* width of a single thumbnail (320 on
+    // typical servers) -- i.e. TrickplayInfo::width, NOT TrickplayInfo::tileWidth
+    // (grid column count). `sheetIndex` is thumbnailIndex / (tileWidth * tileHeight).
+    // Callers must fetch this URL using authorizedRequest() rather than ?api_key=.
     QUrl trickplayTileUrl(const QString &itemId, int thumbnailWidth, int sheetIndex) const;
+
+    // Builds a QNetworkRequest carrying the current session's MediaBrowser
+    // Authorization header (required by Jellyfin 12+ endpoints such as
+    // /Videos/{id}/Trickplay/..., which reject ?api_key= query auth).
+    QNetworkRequest authorizedRequest(const QUrl &url) const;
 
     // A downloadable external subtitle stream, for `sub-add` in mpv.
     QUrl subtitleStreamUrl(const QString &itemId, const QString &mediaSourceId, int streamIndex,

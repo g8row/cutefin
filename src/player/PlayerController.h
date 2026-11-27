@@ -39,6 +39,7 @@ class PlayerController : public QObject
     Q_PROPERTY(QVariantList chapters READ chapters NOTIFY chaptersChanged)
     Q_PROPERTY(bool trickplayEnabled READ trickplayEnabled NOTIFY trickplayChanged)
     Q_PROPERTY(int trickplayRevision READ trickplayRevision NOTIFY trickplayChanged)
+    Q_PROPERTY(int trickplayIntervalMs READ trickplayIntervalMs NOTIFY trickplayChanged)
 
     Q_PROPERTY(bool skipActive READ skipActive NOTIFY skipChanged)
     Q_PROPERTY(QString skipLabel READ skipLabel NOTIFY skipChanged)
@@ -78,6 +79,7 @@ public:
     QVariantList chapters() const { return m_chapters; }
     bool trickplayEnabled() const;
     int trickplayRevision() const { return m_trickplayRevision; }
+    int trickplayIntervalMs() const;
 
     bool skipActive() const { return m_skipActive; }
     QString skipLabel() const { return m_skipLabel; }
@@ -123,6 +125,7 @@ public:
     Q_INVOKABLE void jumpChapter(int direction);
     Q_INVOKABLE void seekToChapter(int index);
     Q_INVOKABLE void requestTrickplay(qint64 positionMs);
+    Q_INVOKABLE bool hasTrickplayAt(qint64 positionMs) const;
     Q_INVOKABLE void triggerSkip();
     Q_INVOKABLE void playNextEpisode();
     Q_INVOKABLE void cancelNextEpisode();

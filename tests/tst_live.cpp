@@ -4,6 +4,8 @@
 #include "core/Settings.h"
 
 #include <QEventLoop>
+#include <QImage>
+#include <QNetworkReply>
 #include <QTest>
 #include <QTimer>
 #include <QUuid>
@@ -202,6 +204,37 @@ void tst_Live::fullServerIntegration()
         qInfo() << "Playback resolved:" << (res.isTranscoding ? "Transcode" : "DirectPlay")
                 << "container:" << res.container << "chapters:" << fullItem.chapters.size()
                 << "trickplay:" << !fullItem.trickplay.isEmpty();
+
+        // 7b. Trickplay tile fetch with MediaBrowser Authorization header
+        if (!fullItem.trickplay.isEmpty()) {
+            const auto msMap = fullItem.trickplay.constBegin().value();
+            if (!msMap.isEmpty()) {
+                const TrickplayInfo tp = msMap.constBegin().value();
+                QVERIFY(tp.isValid());
+                const QUrl tileUrl = client.trickplayTileUrl(fullItem.id, tp.width, 0);
+                QVERIFY(!tileUrl.hasQuery());
+                QNetworkRequest tileReq = client.authorizedRequest(tileUrl);
+                tileReq.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
+                tileReq.setAttribute(QNetworkRequest::CacheSaveControlAttribute, false);
+
+                int httpStatus = 0;
+                QNetworkReply::NetworkError netErr = QNetworkReply::NoError;
+                QByteArray tileBytes;
+                QVERIFY(waitFor([&](std::function<void()> done) {
+                    queue.get(tileReq, NetworkQueue::Priority::Image, this, [&, done](QNetworkReply *reply) {
+                        httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                        netErr = reply->error();
+                        tileBytes = reply->readAll();
+                        done();
+                    });
+                }));
+                QVERIFY2(netErr == QNetworkReply::NoError && httpStatus == 200,
+                         qPrintable(QStringLiteral("Trickplay tile failed: HTTP %1 (err=%2)").arg(httpStatus).arg(int(netErr))));
+                const QImage sheet = QImage::fromData(tileBytes);
+                QVERIFY2(!sheet.isNull(), "Trickplay tile JPEG failed to decode");
+                qInfo() << "Fetched trickplay sheet 0:" << sheet.size() << "bytes:" << tileBytes.size();
+            }
+        }
     }
 
     // 8. Logout cleanly
