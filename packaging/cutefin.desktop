@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Cutefin
+GenericName=Jellyfin Media Client
+Comment=Fast native Qt 6 Quick + libmpv Jellyfin desktop client
+Exec=cutefin %U
+Icon=cutefin
+Terminal=false
+Categories=AudioVideo;Video;Player;Qt;
+StartupWMClass=cutefin
+Keywords=jellyfin;media;video;player;streaming;

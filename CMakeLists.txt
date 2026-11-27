@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
-project(cutefin LANGUAGES CXX)
+project(cutefin VERSION 0.2.0 LANGUAGES CXX)
+
+include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC OFF)
@@ -122,3 +125,39 @@ qt_add_qml_module(cutefin
 
 enable_testing()
 add_subdirectory(tests)
+
+# ---------------------------------------------------------------------------
+# Install rules (macOS .app bundle or Linux binary + desktop entry + icon)
+# ---------------------------------------------------------------------------
+if(APPLE)
+    set(CUTEFIN_MACOS_APP_DIR "/Applications" CACHE PATH "Install directory for Cutefin.app on macOS")
+    set(CUTEFIN_ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/packaging/Cutefin.icns")
+    set_source_files_properties("${CUTEFIN_ICON_FILE}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    target_sources(cutefin PRIVATE "${CUTEFIN_ICON_FILE}")
+
+    set_target_properties(cutefin PROPERTIES
+        MACOSX_BUNDLE TRUE
+        OUTPUT_NAME "Cutefin"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH "@executable_path/../Frameworks"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/packaging/Info.plist.in"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "io.cutefin.Cutefin"
+        MACOSX_BUNDLE_BUNDLE_NAME "Cutefin"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_ICON_FILE "Cutefin.icns"
+    )
+    install(TARGETS cutefin
+        BUNDLE DESTINATION "${CUTEFIN_MACOS_APP_DIR}"
+    )
+else()
+    install(TARGETS cutefin
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    )
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/cutefin.desktop"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
+    )
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/cutefin.svg"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+    )
+endif()

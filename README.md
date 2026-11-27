@@ -48,28 +48,46 @@ No Electron. No Chromium. No external player windows.
 
 ---
 
-## Building
+## Building & Installing
 
 ### Dependencies
-- CMake ≥ 3.21, Ninja, C++17 compiler
+- CMake ≥ 3.21, Make (and optionally Ninja for faster rebuilds), C++17 compiler
 - Qt 6 (≥ 6.5): `Core`, `Gui`, `Network`, `Concurrent`, `Qml`, `Quick`, `QuickControls2`, `OpenGL`, `Svg`, `Test` (optional `DBus` on Linux)
 - `libmpv` (`mpv` development headers + library)
 
-### macOS (Homebrew)
+### Quick Build & Install (`make`)
+A top-level [`Makefile`](Makefile) wraps CMake (auto-detecting Ninja and Homebrew Qt on macOS):
+
 ```sh
+# macOS (Homebrew dependencies)
 brew install qt mpv cmake ninja
-cmake -S . -B build -G Ninja -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt
-cmake --build build
-./build/cutefin
+
+# Build (Release)
+make
+
+# Install onto this machine
+# - macOS: installs /Applications/Cutefin.app + `cutefin` CLI symlink
+# - Linux: installs /usr/local/bin/cutefin + desktop entry + icon (use sudo or PREFIX=~/.local)
+make install
+
+# Run offline tests / launch / uninstall
+make test
+make run
+make uninstall
 ```
 
-### Linux
+Override install paths with standard variables:
 ```sh
-cmake -S . -B build -G Ninja
-cmake --build build
-./build/cutefin
+make install PREFIX="$HOME/.local"          # Linux user-local install
+make install APP_DIR="$HOME/Applications"   # macOS custom app folder
 ```
-*(On X11, Cutefin automatically sets `QT_XCB_GL_INTEGRATION=xcb_egl` unless overridden so `libmpv` VA-API EGL interop works smoothly.)*
+
+### Direct CMake (optional)
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt
+cmake --build build
+```
+*(On Linux X11, Cutefin automatically sets `QT_XCB_GL_INTEGRATION=xcb_egl` unless overridden so `libmpv` VA-API EGL interop works smoothly.)*
 
 ### Tests
 ```sh

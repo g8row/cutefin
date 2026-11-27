@@ -137,3 +137,6 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+# Keep the hand-written top-level CMake wrapper Makefile tracked.
+!/Makefile
+

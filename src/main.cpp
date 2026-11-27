@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     app.setOrganizationName(QStringLiteral("cutefin"));
     app.setApplicationName(QStringLiteral("cutefin"));
+    app.setApplicationDisplayName(QStringLiteral("Cutefin"));
+    app.setDesktopFileName(QStringLiteral("cutefin"));
 
     // libmpv refuses to initialize unless LC_NUMERIC is "C". QGuiApplication's
     // constructor applies the system locale, so this has to come after it.
